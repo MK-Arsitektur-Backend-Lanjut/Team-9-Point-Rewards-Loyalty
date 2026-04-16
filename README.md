@@ -73,3 +73,90 @@ Test yang sudah disiapkan:
 - API feature test:
   - `tests/Feature/ActivityRuleApiTest.php`
   - `tests/Feature/RewardApiTest.php`
+
+---
+
+## Update Pengerjaan - Modul 4 (Membership Tiering & Referral)
+
+Implementasi Modul 4 sudah ditambahkan di atas fondasi Modul 1 tanpa mengubah alur utama Modul 1.
+
+### Fitur Modul 4
+
+- Membership tier (`Bronze`, `Silver`, `Gold`) dengan rule rentang poin dan multiplier.
+- Auto assign/recalculate tier user berdasarkan total poin.
+- Referral flow:
+  - Generate referral code.
+  - Apply referral code (dengan validasi anti self-referral dan anti duplicate).
+  - Bonus poin untuk referrer dan referee.
+- Activity trigger dengan multiplier tier (integrasi data `activity_rules` dari Modul 1).
+- Reward redemption terintegrasi:
+  - Cek kecukupan poin user.
+  - Atomic stock decrement reward.
+  - Simpan histori redemption.
+- Delete tier endpoint (hard delete) dan relasi user aman (`membership_tier_id` otomatis `null` saat tier dihapus).
+
+### Endpoint API Modul 4
+
+- `GET /api/membership/tiers`
+- `POST /api/membership/tiers`
+- `PUT /api/membership/tiers/{membershipTier}`
+- `DELETE /api/membership/tiers/{membershipTier}`
+- `POST /api/membership/tiers/recalculate`
+- `POST /api/membership/referrals/generate`
+- `POST /api/membership/referrals/apply`
+- `POST /api/membership/activity/trigger`
+- `POST /api/membership/rewards/{reward}/redeem`
+
+### Struktur Kode Modul 4
+
+- Controller:
+  - `app/Http/Controllers/Api/MembershipController.php`
+- Service:
+  - `app/Services/MembershipTierService.php`
+  - `app/Services/ReferralService.php`
+  - `app/Services/MembershipActivityService.php`
+  - `app/Services/RewardRedemptionService.php`
+- Repository Contracts & Eloquent:
+  - `app/Repositories/Contracts/*Membership*`
+  - `app/Repositories/Contracts/UserRepositoryInterface.php`
+  - `app/Repositories/Contracts/ReferralLogRepositoryInterface.php`
+  - `app/Repositories/Contracts/RewardRedemptionRepositoryInterface.php`
+  - `app/Repositories/Eloquent/MembershipTierRepository.php`
+  - `app/Repositories/Eloquent/UserRepository.php`
+  - `app/Repositories/Eloquent/ReferralLogRepository.php`
+  - `app/Repositories/Eloquent/RewardRedemptionRepository.php`
+
+### Perubahan Database (Modul 4)
+
+- Migrations:
+  - `database/migrations/2026_04_16_120000_create_membership_tiers_table.php`
+  - `database/migrations/2026_04_16_120100_add_membership_and_referral_columns_to_users_table.php`
+  - `database/migrations/2026_04_16_120200_create_referral_logs_table.php`
+- Model baru:
+  - `app/Models/MembershipTier.php`
+  - `app/Models/ReferralLog.php`
+
+### Seeder Tambahan
+
+- Seeder default tier ditambahkan:
+  - `database/seeders/MembershipTierSeeder.php`
+- Sudah diregistrasikan ke:
+  - `database/seeders/DatabaseSeeder.php`
+
+### Dashboard Uji Lokal (Tanpa Postman)
+
+- Halaman root `http://localhost:8000` sudah ditingkatkan menjadi dashboard uji Modul 4.
+- Menampilkan helper data (`user_id`, `reward_id`, `activity_code`) dan form action endpoint utama.
+- File terkait:
+  - `routes/web.php`
+  - `resources/views/welcome.blade.php`
+
+### Testing Modul 4
+
+- Feature tests Modul 4:
+  - `tests/Feature/MembershipModuleApiTest.php`
+- Seluruh skenario utama lulus:
+  - Trigger activity + multiplier
+  - Apply referral
+  - Redeem reward
+  - Delete tier
