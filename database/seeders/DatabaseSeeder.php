@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             ActivityRuleSeeder::class,
+            MembershipTierSeeder::class,
             RewardSeeder::class,
             PointActivityLogSeeder::class,
         ]);

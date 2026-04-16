@@ -6,7 +6,7 @@ use App\Models\Reward;
 use App\Repositories\Contracts\RewardRepositoryInterface;
 use App\Services\RewardService;
 use Illuminate\Validation\ValidationException;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class RewardServiceTest extends TestCase
 {
