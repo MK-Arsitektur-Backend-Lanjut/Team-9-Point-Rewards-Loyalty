@@ -2,56 +2,65 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'points_balance',
+        'membership_tier',
+        'referral_code',
+        'referred_by_user_id',
+        'point_multiplier'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 
-    public function rewardRedemptions(): HasMany
+    /**
+     * Get the PointBalance for the user
+     */
+    public function pointBalance(): HasOne
     {
-        return $this->hasMany(RewardRedemption::class);
+        return $this->hasOne(PointBalance::class);
     }
 
-    public function pointActivityLogs(): HasMany
+    /**
+     * Get PointLog records for the user
+     */
+    public function pointLogs(): HasMany
     {
-        return $this->hasMany(PointActivityLog::class);
+        return $this->hasMany(PointLog::class);
+    }
+
+    /**
+     * Get referral records where this user is the referrer
+     */
+    public function referrals(): HasMany
+    {
+        return $this->hasMany(Referral::class, 'referred_by_user_id');
+    }
+
+    /**
+     * Get the user who referred this user
+     */
+    public function referredBy()
+    {
+        return $this->belongsTo(User::class, 'referred_by_user_id');
     }
 }

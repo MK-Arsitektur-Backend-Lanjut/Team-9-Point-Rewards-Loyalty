@@ -1,8 +1,5 @@
 <?php
 
-use App\Models\ActivityRule;
-use App\Models\PointActivityLog;
-use App\Models\Reward;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,11 +14,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome', [
-        'stats' => [
-            'activity_rules' => ActivityRule::query()->count(),
-            'rewards' => Reward::query()->count(),
-            'activity_logs' => PointActivityLog::query()->count(),
-        ],
-    ]);
+    return ['message' => 'Welcome to Loyalty Rewards API'];
 });

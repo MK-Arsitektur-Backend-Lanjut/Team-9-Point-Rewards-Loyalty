@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 /*
 |--------------------------------------------------------------------------
@@ -9,11 +9,7 @@ use Illuminate\Support\Facades\Artisan;
 |--------------------------------------------------------------------------
 |
 | This file is where you may define all of your Closure based console
-| commands. Each Closure is bound to a command instance allowing a
-| simple approach to interacting with each command's IO methods.
+| commands. Each Closure is bound to a command instance and receives
+| all of the arguments and input that the user is providing.
 |
 */
-
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
