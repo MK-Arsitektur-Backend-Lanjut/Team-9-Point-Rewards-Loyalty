@@ -3,427 +3,470 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Loyalty Backend Dashboard</title>
+    <title>Loyalty Dashboard - Module 4 Playground</title>
     <style>
         :root {
-            color-scheme: light;
-            --bg: #f3f4f6;
-            --card: #ffffff;
-            --text: #0f172a;
-            --muted: #475569;
-            --accent: #2563eb;
-            --accent-modul3: #7c3aed;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
+            --bg: #f4f7fb;
+            --ink: #172033;
+            --muted: #5a667f;
+            --panel: #ffffff;
+            --line: #d8e0ef;
+            --brand: #1363df;
+            --brand-soft: #e8f1ff;
+            --ok: #0f9d58;
+            --warn: #b45f06;
+            --radius: 14px;
         }
+        * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 0% 0%, #e9f2ff 0, transparent 40%),
+                radial-gradient(circle at 100% 0%, #fef3e8 0, transparent 34%),
+                var(--bg);
         }
-        .container {
-            max-width: 1200px;
+        .wrap {
+            max-width: 1180px;
             margin: 0 auto;
-            padding: 32px 20px 48px;
+            padding: 24px 16px 40px;
         }
-        .hero, .panel {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 20px;
+        .hero {
+            background: linear-gradient(120deg, #ffffff, #f5f9ff);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 22px;
             margin-bottom: 16px;
         }
-        h1 { margin: 0 0 8px; font-size: 28px; }
-        h2 { margin: 0 0 12px; font-size: 20px; }
-        p { margin: 0; color: var(--muted); line-height: 1.5; }
-        
-        .grid {
+        h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+        }
+        p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+        .stats {
+            margin-top: 16px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 12px;
-            margin-top: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
         }
         .stat {
-            border: 1px solid var(--border);
+            background: var(--panel);
+            border: 1px solid var(--line);
             border-radius: 12px;
-            padding: 14px;
-            background: #f8fafc;
+            padding: 12px;
         }
-        .stat .label { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
-        .stat .value { font-weight: 700; font-size: 24px; }
-        
-        .links a {
-            display: inline-block;
-            margin: 8px 10px 0 0;
-            padding: 10px 12px;
-            border-radius: 8px;
-            text-decoration: none;
-            border: 1px solid var(--border);
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .modul1-link { color: var(--accent); background: #eff6ff; }
-        .modul1-link:hover { background: var(--accent); color: white; }
-        .modul3-link { color: var(--accent-modul3); background: #f3e8ff; }
-        .modul3-link:hover { background: var(--accent-modul3); color: white; }
-        
-        /* Form Styles */
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
+        .stat small {
             display: block;
-            margin-bottom: 5px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text);
+            color: var(--muted);
+            margin-bottom: 4px;
         }
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
+        .stat strong {
+            font-size: 22px;
         }
-        .form-row {
+        .grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 12px;
+            grid-template-columns: 1.2fr 1fr;
+            margin-bottom: 12px;
+        }
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+        .panel h2 {
+            margin: 0 0 10px;
+            font-size: 20px;
+        }
+        .table-wrap { overflow: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th, td {
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            padding: 8px 6px;
+            white-space: nowrap;
+        }
+        th { color: var(--muted); font-weight: 600; }
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+        }
+        .action {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px;
+            background: #fbfdff;
+        }
+        .action h3 {
+            margin: 0 0 8px;
+            font-size: 16px;
+        }
+        form { display: grid; gap: 8px; }
+        input, select, button, textarea {
+            width: 100%;
+            border: 1px solid #cbd6eb;
+            border-radius: 9px;
+            padding: 9px 10px;
+            font: inherit;
+            background: #fff;
         }
         button {
-            padding: 10px 20px;
-            background: var(--accent-modul3);
-            color: white;
-            border: none;
-            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
+            background: var(--brand);
+            color: #fff;
+            border-color: var(--brand);
         }
-        button:hover { background: #6d28d9; }
-        
-        /* ========== RESULT BOX - TIDAK MELEBAR ========== */
-        .result-wrapper {
-            margin-top: 15px;
-            border-radius: 8px;
-            overflow: hidden;
+        .ghost {
+            background: var(--brand-soft);
+            color: #0d3f8f;
+            border-color: #b7d0fb;
         }
-        .result-box {
-            background: #1e293b;
-            color: #e2e8f0;
+        .response {
+            margin-top: 12px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #0c1424;
+            color: #d4e2ff;
             padding: 12px;
-            font-family: monospace;
-            font-size: 11px;
-            max-height: 200px;
-            overflow-x: auto;      /* Scroll horizontal jika konten panjang */
-            overflow-y: auto;       /* Scroll vertikal jika konten tinggi */
-            white-space: pre-wrap;  /* Wrap teks agar tidak melebar */
-            word-break: break-all;  /* Potong kata jika terlalu panjang */
-            word-wrap: break-word;  /* Wrap untuk browser lama */
-            max-width: 100%;        /* Tidak melebihi parent */
-            display: block;
-        }
-        .result-box pre {
-            margin: 0;
-            white-space: pre-wrap;
-            word-break: break-all;
-            font-family: monospace;
-            font-size: 11px;
-        }
-        .result-box-error {
-            background: #450a0a;
-        }
-        
-        .token-box {
-            background: #fef3c7;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 10px;
-            word-break: break-all;
-            font-family: monospace;
-            font-size: 11px;
-        }
-        .success-text { color: var(--success); }
-        .error-text { color: var(--danger); }
-        .separator {
-            margin: 24px 0;
-            text-align: center;
-            position: relative;
-        }
-        .separator span {
-            background: var(--bg);
-            padding: 0 12px;
-            color: var(--muted);
-            font-size: 14px;
-        }
-        .separator::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: var(--border);
-            z-index: 0;
-        }
-        .separator span { position: relative; z-index: 1; }
-        .footer {
             font-size: 12px;
-            color: var(--muted);
-            margin-top: 24px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-            text-align: center;
+            white-space: pre-wrap;
+            min-height: 110px;
         }
-        .two-columns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        .hint {
+            color: var(--warn);
+            font-size: 12px;
+            margin-top: 6px;
         }
-        @media (max-width: 768px) {
-            .two-columns { grid-template-columns: 1fr; }
-            .form-row { grid-template-columns: 1fr; }
+        .ok {
+            color: var(--ok);
+            font-size: 12px;
+            margin-top: 6px;
+        }
+        @media (max-width: 980px) {
+            .grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <!-- ==================== MODUL 1 ==================== -->
+<div class="wrap">
     <section class="hero">
-        <h1>Loyalty Backend - Modul 1</h1>
-        <p>Dashboard sederhana untuk melihat status modul Activity Rules and Rewards.</p>
-        <div class="grid">
-            <div class="stat">
-                <div class="label">Total Activity Rules</div>
-                <div class="value">{{ number_format($modul1['stats']['activity_rules']) }}</div>
+        <h1>Module 4 Testing Dashboard</h1>
+        <p>Semua action penting Membership Tiering, Referral, Multiplier, dan Redeem bisa langsung dites dari sini tanpa Postman.</p>
+        <div class="stats">
+            <div class="stat"><small>Users</small><strong>{{ number_format($stats['users']) }}</strong></div>
+            <div class="stat"><small>Activity Rules</small><strong>{{ number_format($stats['activity_rules']) }}</strong></div>
+            <div class="stat"><small>Rewards</small><strong>{{ number_format($stats['rewards']) }}</strong></div>
+            <div class="stat"><small>Activity Logs</small><strong>{{ number_format($stats['activity_logs']) }}</strong></div>
+            <div class="stat"><small>Tiers</small><strong>{{ number_format($stats['tiers']) }}</strong></div>
+            <div class="stat"><small>Referrals</small><strong>{{ number_format($stats['referrals']) }}</strong></div>
+            <div class="stat"><small>Redemptions</small><strong>{{ number_format($stats['redemptions']) }}</strong></div>
+        </div>
+    </section>
+
+    <section class="grid">
+        <div class="panel">
+            <h2>Data Helper</h2>
+            <p>Pakai user_id, reward_id, dan activity_code dari tabel ini saat submit action.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>User ID</th><th>Name</th><th>Points</th><th>Tier ID</th><th>Referral Code</th></tr>
+                    </thead>
+                    <tbody>
+                    @forelse($users as $user)
+                        <tr>
+                            <td>{{ $user->id }}</td>
+                            <td>{{ $user->name }}</td>
+                            <td>{{ $user->points }}</td>
+                            <td>{{ $user->membership_tier_id ?? '-' }}</td>
+                            <td>{{ $user->referral_code ?? '-' }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="5">Belum ada user.</td></tr>
+                    @endforelse
+                    </tbody>
+                </table>
             </div>
-            <div class="stat">
-                <div class="label">Total Rewards</div>
-                <div class="value">{{ number_format($modul1['stats']['rewards']) }}</div>
+            <br>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr><th>Reward ID</th><th>Name</th><th>Points Required</th><th>Stock</th><th>Physical</th></tr>
+                    </thead>
+                    <tbody>
+                    @forelse($rewards as $reward)
+                        <tr>
+                            <td>{{ $reward->id }}</td>
+                            <td>{{ $reward->name }}</td>
+                            <td>{{ $reward->points_required }}</td>
+                            <td>{{ $reward->stock }}</td>
+                            <td>{{ $reward->is_physical ? 'yes' : 'no' }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="5">Belum ada reward.</td></tr>
+                    @endforelse
+                    </tbody>
+                </table>
             </div>
-            <div class="stat">
-                <div class="label">Point Activity Logs</div>
-                <div class="value">{{ number_format($modul1['stats']['activity_logs']) }}</div>
+            <br>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr><th>Activity Rule ID</th><th>Activity Code</th><th>Point Value</th><th>Active</th></tr>
+                    </thead>
+                    <tbody>
+                    @forelse($activityRules as $rule)
+                        <tr>
+                            <td>{{ $rule->id }}</td>
+                            <td>{{ $rule->activity_code }}</td>
+                            <td>{{ $rule->point_value }}</td>
+                            <td>{{ $rule->is_active ? 'yes' : 'no' }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="4">Belum ada activity rule.</td></tr>
+                    @endforelse
+                    </tbody>
+                </table>
             </div>
+        </div>
+
+        <div class="panel">
+            <h2>Tier & Log Snapshot</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Tier ID</th><th>Code</th><th>Name</th><th>Range</th><th>Multiplier</th></tr></thead>
+                    <tbody>
+                    @forelse($tiers as $tier)
+                        <tr>
+                            <td>{{ $tier->id }}</td>
+                            <td>{{ $tier->code }}</td>
+                            <td>{{ $tier->name }}</td>
+                            <td>{{ $tier->min_points }} - {{ $tier->max_points ?? 'INF' }}</td>
+                            <td>{{ $tier->point_multiplier }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="5">Tier belum dibuat.</td></tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Log ID</th><th>User</th><th>Code</th><th>Points</th><th>At</th></tr></thead>
+                    <tbody>
+                    @forelse($recentLogs as $log)
+                        <tr>
+                            <td>{{ $log->id }}</td>
+                            <td>{{ $log->user_id }}</td>
+                            <td>{{ $log->activity_code }}</td>
+                            <td>{{ $log->points_earned }}</td>
+                            <td>{{ $log->earned_at }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="5">Belum ada log terbaru.</td></tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <p class="hint">Tip: refresh halaman untuk update tabel snapshot setelah submit action.</p>
         </div>
     </section>
 
     <section class="panel">
-        <h2>Quick API Links</h2>
-        <p>Akses endpoint utama modul langsung dari browser.</p>
-        <div class="links">
-            <a href="/api/activity-rules" target="_blank" class="modul1-link">GET Activity Rules</a>
-            <a href="/api/rewards" target="_blank" class="modul1-link">GET Rewards</a>
+        <h2>Module 4 Actions</h2>
+        <div class="action-grid">
+            <div class="action">
+                <h3>Create Tier</h3>
+                <form id="form-create-tier">
+                    <input name="code" placeholder="Code (ex: GOLD)" required>
+                    <input name="name" placeholder="Name" required>
+                    <input name="min_points" type="number" min="0" placeholder="Min Points" required>
+                    <input name="max_points" type="number" min="0" placeholder="Max Points (optional)">
+                    <input name="point_multiplier" type="number" min="1" step="0.01" placeholder="Multiplier" required>
+                    <button type="submit">POST /api/membership/tiers</button>
+                </form>
+            </div>
+
+            <div class="action">
+                <h3>Recalculate User Tier</h3>
+                <form id="form-recalc-tier">
+                    <input name="user_id" type="number" min="1" placeholder="User ID" required>
+                    <button type="submit">POST /api/membership/tiers/recalculate</button>
+                </form>
+                <h3 style="margin-top:12px;">Generate Referral</h3>
+                <form id="form-generate-referral">
+                    <input name="user_id" type="number" min="1" placeholder="User ID" required>
+                    <button type="submit">POST /api/membership/referrals/generate</button>
+                </form>
+            </div>
+
+            <div class="action">
+                <h3>Apply Referral</h3>
+                <form id="form-apply-referral">
+                    <input name="user_id" type="number" min="1" placeholder="Referee User ID" required>
+                    <input name="referral_code" placeholder="Referral Code" required>
+                    <button type="submit">POST /api/membership/referrals/apply</button>
+                </form>
+            </div>
+
+            <div class="action">
+                <h3>Trigger Activity with Multiplier</h3>
+                <form id="form-trigger-activity">
+                    <input name="user_id" type="number" min="1" placeholder="User ID" required>
+                    <input name="activity_code" placeholder="Activity Code (ex: DAILY_LOGIN)" required>
+                    <button type="submit">POST /api/membership/activity/trigger</button>
+                </form>
+            </div>
+
+            <div class="action">
+                <h3>Redeem Reward</h3>
+                <form id="form-redeem">
+                    <input name="user_id" type="number" min="1" placeholder="User ID" required>
+                    <input name="reward_id" type="number" min="1" placeholder="Reward ID" required>
+                    <input name="quantity" type="number" min="1" value="1" required>
+                    <button type="submit">POST /api/membership/rewards/{id}/redeem</button>
+                </form>
+            </div>
+
+            <div class="action">
+                <h3>Quick Read</h3>
+                <form id="form-read-tiers">
+                    <button class="ghost" type="submit">GET /api/membership/tiers</button>
+                </form>
+                <form id="form-read-rules" style="margin-top:8px;">
+                    <button class="ghost" type="submit">GET /api/activity-rules</button>
+                </form>
+                <form id="form-read-rewards" style="margin-top:8px;">
+                    <button class="ghost" type="submit">GET /api/rewards</button>
+                </form>
+                <div class="ok">Request dijalankan langsung dari browser ke API app ini.</div>
+            </div>
         </div>
+
+        <div id="response" class="response">Response output akan muncul di sini...</div>
     </section>
-
-    <!-- ==================== PEMISAH ==================== -->
-    <div class="separator"><span>✦ MODUL 3 ✦</span></div>
-
-    <!-- ==================== MODUL 3 ==================== -->
-    <section class="hero">
-        <h1>Loyalty Backend - Modul 3</h1>
-        <p>Autentikasi Member (JWT), E-Statement, dan Masa Berlaku Poin.</p>
-        <div class="grid">
-            <div class="stat">
-                <div class="label">Total Users</div>
-                <div class="value">{{ number_format($modul3['stats']['total_users']) }}</div>
-            </div>
-            <div class="stat">
-                <div class="label">New Users Today</div>
-                <div class="value">{{ number_format($modul3['stats']['new_users_today']) }}</div>
-            </div>
-            <div class="stat">
-                <div class="label">Total Points Earned</div>
-                <div class="value">{{ number_format($modul3['stats']['total_points_earned']) }}</div>
-            </div>
-            <div class="stat">
-                <div class="label">Active Points</div>
-                <div class="value">{{ number_format($modul3['stats']['active_points']) }}</div>
-            </div>
-            <div class="stat">
-                <div class="label">Points Redeemed</div>
-                <div class="value">{{ number_format($modul3['stats']['total_points_redeemed']) }}</div>
-            </div>
-            <div class="stat">
-                <div class="label">⚠️ Expiring Soon</div>
-                <div class="value" style="color: #f59e0b;">{{ number_format($modul3['stats']['points_expiring_soon']) }}</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FORM REGISTER & LOGIN -->
-    <div class="two-columns">
-        <!-- REGISTER FORM -->
-        <div class="panel">
-            <h2>📝 Register</h2>
-            <form id="registerForm">
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" id="reg_name" placeholder="Masukkan nama" required>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="reg_email" placeholder="Masukkan email" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="reg_password" placeholder="Password" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Confirm Password</label>
-                        <input type="password" id="reg_password_confirmation" placeholder="Konfirmasi password" required>
-                    </div>
-                </div>
-                <button type="submit">Register & Get Token</button>
-            </form>
-            <div id="registerResult" style="display: none;"></div>
-        </div>
-
-        <!-- LOGIN FORM -->
-        <div class="panel">
-            <h2>🔐 Login</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="login_email" placeholder="Masukkan email" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="login_password" placeholder="Password" required>
-                </div>
-                <button type="submit">Login & Get Token</button>
-            </form>
-            <div id="loginResult" style="display: none;"></div>
-        </div>
-    </div>
-
-    <!-- TEST PROTECTED ENDPOINTS -->
-    <div class="panel">
-        <h2>🔒 Test Protected Endpoints (Butuh Token)</h2>
-        <div class="form-group">
-            <label>JWT Token (akan otomatis terisi setelah register/login)</label>
-            <textarea id="currentToken" rows="2" style="width: 100%; font-family: monospace; font-size: 11px; resize: vertical;" placeholder="Token akan muncul di sini..."></textarea>
-        </div>
-        <div class="links">
-            <button onclick="testProtected('GET', '/api/me')" class="modul3-link" style="background: #f3e8ff;">👤 GET /api/me</button>
-            <button onclick="testProtected('GET', '/api/points/balance')" class="modul3-link" style="background: #f3e8ff;">💰 GET /api/points/balance</button>
-            <button onclick="testProtected('GET', '/api/statement')" class="modul3-link" style="background: #f3e8ff;">📄 GET /api/statement</button>
-            <button onclick="testProtected('POST', '/api/logout')" class="modul3-link" style="background: #f3e8ff;">🚪 POST /api/logout</button>
-        </div>
-        <div id="protectedResult" style="display: none; margin-top: 15px;"></div>
-    </div>
-
-    <div class="footer">
-        Laravel v{{ Illuminate\Foundation\Application::VERSION }} | PHP v{{ PHP_VERSION }}
-    </div>
 </div>
 
 <script>
-// Global variable untuk menyimpan token
-let currentToken = localStorage.getItem('jwt_token') || '';
+    const responseBox = document.getElementById('response');
 
-// Tampilkan token jika ada
-if (currentToken) {
-    document.getElementById('currentToken').value = currentToken;
-}
+    async function apiCall(method, path, payload = null) {
+        responseBox.textContent = 'Loading...';
 
-function saveToken(token) {
-    currentToken = token;
-    localStorage.setItem('jwt_token', token);
-    document.getElementById('currentToken').value = token;
-}
+        const options = {
+            method,
+            headers: { 'Accept': 'application/json' }
+        };
 
-function showResult(elementId, data, isError = false) {
-    const element = document.getElementById(elementId);
-    element.style.display = 'block';
-    // Gunakan wrapper dan box dengan ukuran tetap
-    element.innerHTML = `<div class="result-wrapper">
-        <div class="result-box ${isError ? 'result-box-error' : ''}">
-            <pre>${JSON.stringify(data, null, 2)}</pre>
-        </div>
-    </div>`;
-}
-
-async function testProtected(method, url) {
-    const token = document.getElementById('currentToken').value;
-    if (!token) {
-        alert('❌ Token required! Please register or login first.');
-        return;
-    }
-    
-    try {
-        const response = await fetch(url, {
-            method: method,
-            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
-        });
-        const data = await response.json();
-        showResult('protectedResult', data, !response.ok);
-    } catch (error) {
-        showResult('protectedResult', { error: error.message }, true);
-    }
-}
-
-// Register Form
-document.getElementById('registerForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const data = {
-        name: document.getElementById('reg_name').value,
-        email: document.getElementById('reg_email').value,
-        password: document.getElementById('reg_password').value,
-        password_confirmation: document.getElementById('reg_password_confirmation').value
-    };
-    
-    try {
-        const response = await fetch('/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        showResult('registerResult', result, !response.ok);
-        
-        if (result.success && result.data.token) {
-            saveToken(result.data.token);
-            alert('✅ Registration successful! Token saved.');
+        if (payload !== null) {
+            options.headers['Content-Type'] = 'application/json';
+            options.body = JSON.stringify(payload);
         }
-    } catch (error) {
-        showResult('registerResult', { error: error.message }, true);
-    }
-});
 
-// Login Form
-document.getElementById('loginForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const data = {
-        email: document.getElementById('login_email').value,
-        password: document.getElementById('login_password').value
-    };
-    
-    try {
-        const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        showResult('loginResult', result, !response.ok);
-        
-        if (result.success && result.data.token) {
-            saveToken(result.data.token);
-            alert('✅ Login successful! Token saved.');
+        try {
+            const res = await fetch(path, options);
+            let data;
+            try {
+                data = await res.json();
+            } catch (_) {
+                data = { message: await res.text() };
+            }
+
+            responseBox.textContent = JSON.stringify({
+                status: res.status,
+                ok: res.ok,
+                path,
+                data
+            }, null, 2);
+        } catch (error) {
+            responseBox.textContent = JSON.stringify({ error: error.message }, null, 2);
         }
-    } catch (error) {
-        showResult('loginResult', { error: error.message }, true);
     }
-});
+
+    document.getElementById('form-create-tier').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const fd = new FormData(this);
+        apiCall('POST', '/api/membership/tiers', {
+            code: fd.get('code'),
+            name: fd.get('name'),
+            min_points: Number(fd.get('min_points')),
+            max_points: fd.get('max_points') ? Number(fd.get('max_points')) : null,
+            point_multiplier: Number(fd.get('point_multiplier')),
+            is_active: true
+        });
+    });
+
+    document.getElementById('form-recalc-tier').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const fd = new FormData(this);
+        apiCall('POST', '/api/membership/tiers/recalculate', {
+            user_id: Number(fd.get('user_id'))
+        });
+    });
+
+    document.getElementById('form-generate-referral').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const fd = new FormData(this);
+        apiCall('POST', '/api/membership/referrals/generate', {
+            user_id: Number(fd.get('user_id'))
+        });
+    });
+
+    document.getElementById('form-apply-referral').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const fd = new FormData(this);
+        apiCall('POST', '/api/membership/referrals/apply', {
+            user_id: Number(fd.get('user_id')),
+            referral_code: fd.get('referral_code')
+        });
+    });
+
+    document.getElementById('form-trigger-activity').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const fd = new FormData(this);
+        apiCall('POST', '/api/membership/activity/trigger', {
+            user_id: Number(fd.get('user_id')),
+            activity_code: fd.get('activity_code')
+        });
+    });
+
+    document.getElementById('form-redeem').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const fd = new FormData(this);
+        const rewardId = Number(fd.get('reward_id'));
+        apiCall('POST', '/api/membership/rewards/' + rewardId + '/redeem', {
+            user_id: Number(fd.get('user_id')),
+            quantity: Number(fd.get('quantity'))
+        });
+    });
+
+    document.getElementById('form-read-tiers').addEventListener('submit', function (e) {
+        e.preventDefault();
+        apiCall('GET', '/api/membership/tiers');
+    });
+
+    document.getElementById('form-read-rules').addEventListener('submit', function (e) {
+        e.preventDefault();
+        apiCall('GET', '/api/activity-rules');
+    });
+
+    document.getElementById('form-read-rewards').addEventListener('submit', function (e) {
+        e.preventDefault();
+        apiCall('GET', '/api/rewards');
+    });
 </script>
 </body>
 </html>
