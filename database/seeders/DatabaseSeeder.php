@@ -21,6 +21,10 @@ class DatabaseSeeder extends Seeder
             PointRuleSeeder::class,
             ReferralSeeder::class,
             PointLogSeeder::class,
+            ActivityRuleSeeder::class,
+            MembershipTierSeeder::class,
+            RewardSeeder::class,
+            PointActivityLogSeeder::class,
         ]);
     }
 }

@@ -16,11 +16,15 @@ class PointActivityLog extends Model
         'points_earned',
         'meta',
         'earned_at',
+        'expired_at',
+        'point_status',
     ];
+    
 
     protected $casts = [
         'meta' => 'array',
         'earned_at' => 'datetime',
+        'expired_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
