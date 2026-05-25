@@ -1,0 +1,163 @@
+{
+  "info": {
+    "name": "Team 9 - Loyalty Rewards API (Module 2)",
+    "description": "Point Rewards & Loyalty System - Reward Processing Module",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Reward Processing",
+      "item": [
+        {
+          "name": "Add Points Automatic",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"point_rule_id\": 1,\n  \"metadata\": {\n    \"order_id\": \"ORD-001\",\n    \"amount\": 50000\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/rewards/add-points",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "rewards", "add-points"]
+            },
+            "description": "Add points automatically with tier and user multiplier calculation"
+          }
+        },
+        {
+          "name": "Validate Balance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"required_points\": 100\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/rewards/validate-balance",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "rewards", "validate-balance"]
+            },
+            "description": "Validate if user has sufficient points"
+          }
+        },
+        {
+          "name": "Redeem Points",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"points_to_redeem\": 50,\n  \"description\": \"Redeem for discount voucher\",\n  \"metadata\": {\n    \"voucher_id\": \"VOUCHER-001\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/rewards/redeem",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "rewards", "redeem"]
+            },
+            "description": "Redeem points with balance validation and race condition handling"
+          }
+        },
+        {
+          "name": "Get Balance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/api/rewards/balance/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "rewards", "balance", "1"]
+            },
+            "description": "Get user point balance information"
+          }
+        },
+        {
+          "name": "Get User Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/api/rewards/logs/1?limit=50&offset=0",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "rewards", "logs", "1"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Get point logs for specific user"
+          }
+        },
+        {
+          "name": "Get All Logs (Filtered)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/api/rewards/all-logs?user_id=1&transaction_type=earn&status=completed&per_page=50&page=1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "rewards", "all-logs"],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "1"
+                },
+                {
+                  "key": "transaction_type",
+                  "value": "earn"
+                },
+                {
+                  "key": "status",
+                  "value": "completed"
+                },
+                {
+                  "key": "per_page",
+                  "value": "50"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Get all point logs with various filters"
+          }
+        }
+      ]
+    }
+  ]
+}
