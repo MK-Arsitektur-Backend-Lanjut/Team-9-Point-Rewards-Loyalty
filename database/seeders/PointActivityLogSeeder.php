@@ -24,15 +24,25 @@ class PointActivityLogSeeder extends Seeder
         $now = now();
         $rows = [];
         $targetRows = 35000;
+        $existingRows = PointActivityLog::query()->count();
+        $remainingRows = max(0, $targetRows - $existingRows);
         $batchSize = 2000;
 
-        for ($i = 1; $i <= $targetRows; $i++) {
+        if ($remainingRows === 0) {
+            return;
+        }
+
+        for ($i = 1; $i <= $remainingRows; $i++) {
+            $earnedAt = Carbon::now()->subMinutes(mt_rand(1, 60000));
+            $pointsEarned = mt_rand(2, 30);
             $rows[] = [
                 'user_id' => $users[array_rand($users)],
                 'activity_code' => $activityCodes[array_rand($activityCodes)],
-                'points_earned' => mt_rand(2, 30),
+                'points_earned' => $pointsEarned,
                 'meta' => json_encode(['source' => 'seeder', 'batch' => ceil($i / 1000)]),
-                'earned_at' => Carbon::now()->subMinutes(mt_rand(1, 60000)),
+                'earned_at' => $earnedAt,
+                'expired_at' => $earnedAt->copy()->addYear(),
+                'point_status' => 'active',
                 'created_at' => $now,
                 'updated_at' => $now,
             ];

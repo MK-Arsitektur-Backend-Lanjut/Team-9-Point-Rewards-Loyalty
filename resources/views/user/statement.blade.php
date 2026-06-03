@@ -105,7 +105,23 @@
         </div>
 
         <div class="pagination">
-            {{ $statement['history']->withQueryString()->links() }}
+            {{ $statement['history']->withQueryString()->onEachSide(1)->links() }}
         </div>
     </section>
+
+    @push('styles')
+    <style>
+        /* Menghilangkan link previous dan next berdasarkan atribut rel */
+        .pagination a[rel="prev"], 
+        .pagination span[aria-hidden="true"], 
+        .pagination a[rel="next"] {
+            display: none !important;
+        }
+        
+        /* Menghilangkan SVG (panah) jika menggunakan Tailwind pagination */
+        .pagination svg {
+            display: none !important;
+        }
+    </style>
+    @endpush
 @endsection

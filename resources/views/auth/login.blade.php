@@ -170,6 +170,41 @@
             opacity: 1;
             visibility: visible;
         }
+
+        .demo-info{
+            background:#f8fbff;
+            border:1px solid #d8e0ef;
+            border-radius:12px;
+            padding:16px;
+            margin-bottom:20px;
+        }
+
+        .demo-title{
+            font-weight:700;
+            color:var(--brand);
+            margin-bottom:12px;
+        }
+
+        .demo-body{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+            gap:12px;
+        }
+
+        .demo-account{
+            background:white;
+            border:1px solid #e3ebf8;
+            border-radius:10px;
+            padding:10px;
+            font-size:13px;
+            line-height:1.6;
+        }
+
+        .demo-note{
+            margin-top:12px;
+            color:var(--muted);
+            font-size:13px;
+        }
     </style>
 </head>
 <body>
@@ -179,6 +214,36 @@
     <div class="hero">
         <h1>Membership System</h1>
         <p>Pilih menu masuk atau daftar untuk melanjutkan.</p>
+    </div>
+
+    <div class="demo-info">
+        <div class="demo-title">
+            🧪 Akun Demo untuk Pengujian
+        </div>
+
+        <div class="demo-body">
+            <div class="demo-account">
+                <strong>Admin</strong><br>
+                Email: admin@example.com<br>
+                Password: password123
+            </div>
+
+            <div class="demo-account">
+                <strong>User Gold</strong><br>
+                Email: alice@example.com<br>
+                Password: password123
+            </div>
+
+            <div class="demo-account">
+                <strong>User Silver</strong><br>
+                Email: john@example.com<br>
+                Password: password123
+            </div>
+        </div>
+
+        <div class="demo-note">
+            Gunakan salah satu akun di atas untuk melihat fitur Membership, Statement Poin, Referral, dan Riwayat Transaksi.
+        </div>
     </div>
 
     <div class="tabs">

@@ -260,6 +260,9 @@
             border-color: #bad3ff;
         }
 
+        .pagination svg {
+            display: none !important;
+        }
         @media (max-width: 780px) {
             .topbar {
                 flex-direction: column;

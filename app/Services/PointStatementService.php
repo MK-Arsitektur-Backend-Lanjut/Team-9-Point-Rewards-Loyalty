@@ -25,6 +25,8 @@ class PointStatementService
     public function getStatement(int $userId, array $filters = [])
     {
         $user = $this->userRepository->findById($userId);
+
+        $this->pointLogRepository->markExpiredPoints($userId);
         
         // Get paginated statement history
         $history = $this->pointLogRepository->getUserStatement($userId, $filters);
@@ -54,6 +56,7 @@ class PointStatementService
     public function getPointsBalance(int $userId)
     {
         $user = $this->userRepository->findById($userId);
+        $this->pointLogRepository->markExpiredPoints($userId);
         
         return [
             'current_balance' => $user->points_balance,

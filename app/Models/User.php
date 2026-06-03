@@ -35,6 +35,15 @@ class User extends Authenticatable implements JWTSubject
         'password' => 'hashed',
     ];
 
+    public function getPointsBalanceAttribute($value)
+    {
+        if (array_key_exists('points', $this->attributes) && $this->attributes['points'] !== null) {
+            return (int) $this->attributes['points'];
+        }
+
+        return (int) $value;
+    }
+
     public function rewardRedemptions(): HasMany
     {
         return $this->hasMany(RewardRedemption::class);

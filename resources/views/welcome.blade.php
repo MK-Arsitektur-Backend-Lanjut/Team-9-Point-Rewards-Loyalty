@@ -164,10 +164,10 @@
     <section class="hero">
         <h1>Module 4 Testing Dashboard</h1>
         <p>Semua action penting Membership Tiering, Referral, Multiplier, dan Redeem bisa langsung dites dari sini tanpa Postman.</p>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
-            <a href="{{ route('user.profile') }}" class="ghost" style="display:inline-block; padding:10px 14px; text-decoration:none;">Profil Saya</a>
-            <a href="{{ route('user.statement') }}" class="ghost" style="display:inline-block; padding:10px 14px; text-decoration:none;">Statement Poin</a>
-            <a href="{{ route('logout') }}" class="ghost" style="display:inline-block; padding:10px 14px; text-decoration:none;">Logout</a>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; justify-content: center;">
+            <a href="{{ route('user.profile') }}" class="ghost" style="display:inline-block; padding:10px 14px; text-decoration:none; border-radius: 8px;">Profil Saya</a>
+            <a href="{{ route('user.statement') }}" class="ghost" style="display:inline-block; padding:10px 14px; text-decoration:none; border-radius: 8px;">Statement Poin</a>
+            <a href="{{ route('logout') }}" class="ghost" style="display:inline-block; padding:10px 14px; text-decoration:none; border-radius: 8px;">Logout</a>
         </div>
         <div class="stats">
             <div class="stat"><small>Users</small><strong>{{ number_format($stats['users']) }}</strong></div>
