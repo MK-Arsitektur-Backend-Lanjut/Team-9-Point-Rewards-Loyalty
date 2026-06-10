@@ -1,4 +1,6 @@
+/.phpunit.cache
 /node_modules
+/public/build
 /public/hot
 /public/storage
 /storage/*.key
@@ -22,3 +24,8 @@ docker-compose.override.yml
 storage/logs/*
 .env.local
 storage/framework/cache/data/
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode

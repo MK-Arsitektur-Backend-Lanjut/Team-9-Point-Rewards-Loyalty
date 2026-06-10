@@ -25,7 +25,6 @@ Route::middleware(['jwt.auth'])->group(function () {
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
-
     // Statement & Points
     Route::get('/statement', [StatementController::class, 'index']);
     Route::get('/statement/export-pdf', [StatementController::class, 'exportPdf']);

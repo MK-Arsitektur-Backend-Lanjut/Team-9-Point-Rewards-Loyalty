@@ -1,7 +1,9 @@
 {
     "name": "team9/loyalty-rewards",
-    "description": "Point Rewards & Loyalty System - Modul 2 (Reward Processing)",
     "type": "project",
+    "description": "Point Rewards & Loyalty System - Modul 2 (Reward Processing)",
+    "keywords": ["laravel", "framework"],
+    "license": "MIT",
     "require": {
         "php": "^8.1",
         "guzzlehttp/guzzle": "^7.2",
@@ -45,6 +47,31 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "optimize": [
+            "@php artisan optimize"
+        ],
+        "serve-local": [
+            "@composer run-script optimize",
+            "@php artisan serve --host=127.0.0.1 --port=8000"
+        ],
+        "docker:setup": [
+            "docker compose up -d --build",
+            "docker compose exec app php artisan migrate --force",
+            "docker compose exec app php artisan optimize"
+        ],
+        "local:optimize": [
+            "@php artisan cache:clear",
+            "@php artisan config:cache",
+            "@php artisan route:cache",
+            "@php artisan view:cache",
+            "@php artisan optimize"
+        ],
+        "db:optimize": [
+            "powershell -ExecutionPolicy Bypass -File .\\scripts\\db-optimize.ps1"
+        ],
+        "redis:verify": [
+            "powershell -ExecutionPolicy Bypass -File .\\scripts\\redis-verify.ps1"
         ]
     },
     "extra": {

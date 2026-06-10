@@ -65,31 +65,58 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Get the user who referred this user
      */
-    public function referredBy()
+    public function referredBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'referred_by_user_id');
     }
 
+    /**
+     * Get points balance attribute
+     */
+    public function getPointsBalanceAttribute($value)
+    {
+        if (isset($this->attributes['points']) && $this->attributes['points'] !== null) {
+            return (int) $this->attributes['points'];
+        }
+
+        return (int) $value;
+    }
+
+    /**
+     * Get reward redemptions for the user
+     */
     public function rewardRedemptions(): HasMany
     {
         return $this->hasMany(RewardRedemption::class);
     }
 
+    /**
+     * Get point activity logs for the user
+     */
     public function pointActivityLogs(): HasMany
     {
         return $this->hasMany(PointActivityLog::class);
     }
 
+    /**
+     * Get JWT identifier
+     */
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
+    /**
+     * Get JWT custom claims
+     */
     public function getJWTCustomClaims()
     {
         return [];
     }
 
+    /**
+     * Get active points attribute (not expired)
+     */
     public function getActivePointsAttribute()
     {
         return $this->pointActivityLogs()
@@ -98,6 +125,9 @@ class User extends Authenticatable implements JWTSubject
             ->sum('points_earned');
     }
 
+    /**
+     * Get points expiring soon attribute (within 30 days)
+     */
     public function getPointsExpiringSoonAttribute()
     {
         return $this->pointActivityLogs()
@@ -107,6 +137,9 @@ class User extends Authenticatable implements JWTSubject
             ->sum('points_earned');
     }
 
+    /**
+     * Get total points earned attribute
+     */
     public function getTotalPointsEarnedAttribute()
     {
         return $this->pointActivityLogs()
@@ -114,16 +147,25 @@ class User extends Authenticatable implements JWTSubject
             ->sum('points_earned');
     }
 
+    /**
+     * MODUL 4: Get membership tier relation
+     */
     public function membershipTier(): BelongsTo
     {
         return $this->belongsTo(MembershipTier::class);
     }
 
+    /**
+     * MODUL 4: Get referrer (user who referred this user)
+     */
     public function referrer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'referred_by_user_id');
     }
 
+    /**
+     * MODUL 4: Get referees (users referred by this user)
+     */
     public function referees(): HasMany
     {
         return $this->hasMany(User::class, 'referred_by_user_id');

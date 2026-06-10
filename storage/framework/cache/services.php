@@ -11,6 +11,12 @@
     7 => 'Illuminate\\Filesystem\\FilesystemServiceProvider',
     8 => 'Illuminate\\Foundation\\Providers\\FoundationServiceProvider',
     9 => 'Illuminate\\Foundation\\Providers\\ConsoleSupportServiceProvider',
+    4 => 'Illuminate\\Foundation\\Providers\\ConsoleSupportServiceProvider',
+    5 => 'Illuminate\\Cookie\\CookieServiceProvider',
+    6 => 'Illuminate\\Database\\DatabaseServiceProvider',
+    7 => 'Illuminate\\Encryption\\EncryptionServiceProvider',
+    8 => 'Illuminate\\Filesystem\\FilesystemServiceProvider',
+    9 => 'Illuminate\\Foundation\\Providers\\FoundationServiceProvider',
     10 => 'Illuminate\\Hashing\\HashServiceProvider',
     11 => 'Illuminate\\Mail\\MailServiceProvider',
     12 => 'Illuminate\\Notifications\\NotificationServiceProvider',
@@ -19,6 +25,10 @@
     15 => 'Illuminate\\Queue\\QueueServiceProvider',
     16 => 'Illuminate\\Redis\\RedisServiceProvider',
     17 => 'Illuminate\\Auth\\Passwords\\PasswordResetServiceProvider',
+    14 => 'Illuminate\\Auth\\Passwords\\PasswordResetServiceProvider',
+    15 => 'Illuminate\\Pipeline\\PipelineServiceProvider',
+    16 => 'Illuminate\\Queue\\QueueServiceProvider',
+    17 => 'Illuminate\\Redis\\RedisServiceProvider',
     18 => 'Illuminate\\Session\\SessionServiceProvider',
     19 => 'Illuminate\\Translation\\TranslationServiceProvider',
     20 => 'Illuminate\\Validation\\ValidationServiceProvider',
@@ -34,6 +44,10 @@
     30 => 'App\\Providers\\AppServiceProvider',
     31 => 'App\\Providers\\RouteServiceProvider',
     32 => 'App\\Providers\\RepositoryServiceProvider',
+    31 => 'App\\Providers\\AuthServiceProvider',
+    32 => 'App\\Providers\\EventServiceProvider',
+    33 => 'App\\Providers\\RouteServiceProvider',
+    34 => 'App\\Providers\\RepositoryServiceProvider',
   ),
   'eager' => 
   array (
@@ -56,6 +70,10 @@
     16 => 'App\\Providers\\AppServiceProvider',
     17 => 'App\\Providers\\RouteServiceProvider',
     18 => 'App\\Providers\\RepositoryServiceProvider',
+    17 => 'App\\Providers\\AuthServiceProvider',
+    18 => 'App\\Providers\\EventServiceProvider',
+    19 => 'App\\Providers\\RouteServiceProvider',
+    20 => 'App\\Providers\\RepositoryServiceProvider',
   ),
   'deferred' => 
   array (
@@ -182,6 +200,8 @@
     'mail.manager' => 'Illuminate\\Mail\\MailServiceProvider',
     'mailer' => 'Illuminate\\Mail\\MailServiceProvider',
     'Illuminate\\Mail\\Markdown' => 'Illuminate\\Mail\\MailServiceProvider',
+    'auth.password' => 'Illuminate\\Auth\\Passwords\\PasswordResetServiceProvider',
+    'auth.password.broker' => 'Illuminate\\Auth\\Passwords\\PasswordResetServiceProvider',
     'Illuminate\\Contracts\\Pipeline\\Hub' => 'Illuminate\\Pipeline\\PipelineServiceProvider',
     'pipeline' => 'Illuminate\\Pipeline\\PipelineServiceProvider',
     'queue' => 'Illuminate\\Queue\\QueueServiceProvider',
@@ -220,6 +240,9 @@
     array (
     ),
     'Illuminate\\Mail\\MailServiceProvider' => 
+    array (
+    ),
+    'Illuminate\\Auth\\Passwords\\PasswordResetServiceProvider' => 
     array (
     ),
     'Illuminate\\Pipeline\\PipelineServiceProvider' => 

@@ -63,3 +63,57 @@ volumes:
 networks:
   loyalty_network:
     driver: bridge
+      - membership_network
+
+  # PHP-FPM & Laravel App
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: membership_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./storage:/var/www/html/storage
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - membership_network
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+    command: >
+      sh -c "cp .env.docker .env &&
+             php artisan key:generate --force &&
+             php artisan jwt:secret --force &&
+             php artisan migrate --force &&
+             php artisan optimize --force &&
+             php artisan serve --host=0.0.0.0 --port=8000"
+
+  # phpMyAdmin (opsional, untuk manage database)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: membership_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: rootsecret
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - membership_network
+
+networks:
+  membership_network:
+    driver: bridge
+
+volumes:
+  mysql_data:

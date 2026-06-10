@@ -1,21 +1,17 @@
 <?php
 
-use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
-use Illuminate\Foundation\Configuration\Middleware;
-
 /*
 |--------------------------------------------------------------------------
 | Create The Application
 |--------------------------------------------------------------------------
 |
-| The first thing we need to do is create a new Laravel application instance
+| The first thing we will do is create a new Laravel application instance
 | which serves as the "glue" for all the components of Laravel, and is
 | the IoC container for the system binding all of the various parts.
 |
 */
 
-$app = new Application(
+$app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
 
@@ -26,7 +22,7 @@ $app = new Application(
 |
 | Next, we need to bind some important interfaces into the container so
 | we will be able to resolve them when needed. The kernels serve the
-| requests and console commands respectively to your application.
+| incoming requests to this application from both the web and CLI.
 |
 */
 
