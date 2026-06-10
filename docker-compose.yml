@@ -22,6 +22,16 @@ services:
       timeout: 20s
       retries: 10
 
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: membership_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - membership_network
+
   # PHP-FPM & Laravel App
   app:
     build:
@@ -36,8 +46,8 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
+      - redis
     networks:
       - membership_network
     environment:
@@ -45,9 +55,10 @@ services:
       - APP_DEBUG=true
     command: >
       sh -c "cp .env.docker .env &&
-             php artisan key:generate &&
+             php artisan key:generate --force &&
              php artisan jwt:secret --force &&
              php artisan migrate --force &&
+             php artisan optimize --force &&
              php artisan serve --host=0.0.0.0 --port=8000"
 
   # phpMyAdmin (opsional, untuk manage database)

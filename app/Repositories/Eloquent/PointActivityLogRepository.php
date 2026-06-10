@@ -5,6 +5,7 @@ namespace App\Repositories\Eloquent;
 use App\Models\PointActivityLog;
 use App\Repositories\Contracts\PointActivityLogRepositoryInterface;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class PointActivityLogRepository implements PointActivityLogRepositoryInterface
 {
@@ -17,7 +18,8 @@ class PointActivityLogRepository implements PointActivityLogRepositoryInterface
 
     public function getUserStatement(int $userId, array $filters = [])
     {
-        $query = $this->model->where('user_id', $userId)
+        $query = $this->model->forUser($userId)
+                             ->select(['id', 'user_id', 'activity_code', 'points_earned', 'point_status', 'earned_at', 'expired_at'])
                              ->orderBy('earned_at', 'desc');
         
         if (!empty($filters['start_date'])) {
@@ -43,26 +45,38 @@ class PointActivityLogRepository implements PointActivityLogRepositoryInterface
 
     public function getActivePoints(int $userId)
     {
-        return $this->model->where('user_id', $userId)
-            ->where('point_status', 'active')
-            ->where('expired_at', '>', now())
-            ->sum('points_earned');
+        $cacheKey = "point_activity:user:{$userId}:active_points";
+
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($userId) {
+            return $this->model->forUser($userId)
+                ->active()
+                ->sum('points_earned');
+        });
     }
 
     public function getPointsExpiringSoon(int $userId, int $days = 30)
     {
-        return $this->model->where('user_id', $userId)
-            ->where('point_status', 'active')
-            ->where('expired_at', '<=', now()->addDays($days))
-            ->where('expired_at', '>', now())
-            ->sum('points_earned');
+        $cacheKey = "point_activity:user:{$userId}:expiring_soon:{$days}";
+
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($userId, $days) {
+            return $this->model->forUser($userId)
+                ->expiringSoon($days)
+                ->sum('points_earned');
+        });
     }
 
     public function markExpiredPoints(int $userId): int
     {
-        return $this->model->where('user_id', $userId)
-            ->where('point_status', 'active')
+        $updated = $this->model->forUser($userId)
+            ->active()
             ->where('expired_at', '<=', now())
             ->update(['point_status' => 'expired']);
+
+        if ($updated) {
+            Cache::forget("point_activity:user:{$userId}:active_points");
+            Cache::forget("point_activity:user:{$userId}:expiring_soon:30");
+        }
+
+        return $updated;
     }
 }

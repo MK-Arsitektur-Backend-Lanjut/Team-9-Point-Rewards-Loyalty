@@ -10,6 +10,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "predis/predis": "^3.5",
         "tymon/jwt-auth": "^2.3"
     },
     "require-dev": {
@@ -46,6 +47,31 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "optimize": [
+            "@php artisan optimize"
+        ],
+        "serve-local": [
+            "@composer run-script optimize",
+            "@php artisan serve --host=127.0.0.1 --port=8000"
+        ],
+        "docker:setup": [
+            "docker compose up -d --build",
+            "docker compose exec app php artisan migrate --force",
+            "docker compose exec app php artisan optimize"
+        ],
+        "local:optimize": [
+            "@php artisan cache:clear",
+            "@php artisan config:cache",
+            "@php artisan route:cache",
+            "@php artisan view:cache",
+            "@php artisan optimize"
+        ],
+        "db:optimize": [
+            "powershell -ExecutionPolicy Bypass -File .\\scripts\\db-optimize.ps1"
+        ],
+        "redis:verify": [
+            "powershell -ExecutionPolicy Bypass -File .\\scripts\\redis-verify.ps1"
         ]
     },
     "extra": {
@@ -64,18 +90,4 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true
-
-    {
-    "scripts": {
-        "post-root-package-install": [
-            "@php -r \"file_exists('.env') || copy('.env.laragon', '.env');\""
-        ],
-        "post-create-project-cmd": [
-            "@php artisan key:generate --ansi"
-        ],
-        "env-detect": [
-            "@php scripts/detect-env.php"
-        ]
-    }
-}
 }

@@ -30,9 +30,74 @@ Implementasi `Modul Activity Rules & Rewards` menggunakan Laravel + Docker + Rep
 docker compose up -d --build
 docker compose exec app composer install --no-scripts
 docker compose exec app php artisan migrate --seed
+docker compose exec app php artisan optimize
 ```
 
 Aplikasi tersedia di [http://localhost:8000](http://localhost:8000).
+
+### Local + Docker: Redis dan Optimasi
+
+#### Docker
+1. Jalankan semua service Docker:
+   ```powershell
+docker compose up -d --build
+```
+2. Jalankan setup Laravel di container:
+   ```powershell
+composer docker:setup
+```
+   atau:
+   ```powershell
+.\scripts\setup-docker.ps1
+```
+3. Verifikasi koneksi Redis:
+   ```powershell
+docker compose exec redis redis-cli ping
+```
+
+#### Local
+1. Salin env jika belum ada:
+   ```powershell
+copy .env.example .env
+```
+2. Pastikan `.env` memakai nilai yang cocok untuk lokal:
+   - `DB_HOST=127.0.0.1`
+   - `DB_PORT=3307`
+   - `CACHE_DRIVER=redis`
+   - `SESSION_DRIVER=redis`
+   - `REDIS_HOST=127.0.0.1`
+   - `REDIS_PORT=6379`
+3. Jika Redis belum terpasang lokal, jalankan Docker Redis:
+   ```powershell
+docker compose up -d redis
+```
+4. Jalankan optimasi Laravel:
+   ```powershell
+composer local:optimize
+```
+   atau:
+   ```powershell
+.\scripts\setup-local.ps1
+```
+5. Untuk memastikan Redis dijalankan dan terhubung:
+   ```powershell
+composer redis:verify
+```
+   atau:
+   ```powershell
+.\scripts\redis-verify.ps1
+```
+6. Untuk menjalankan optimasi database MySQL:
+   ```powershell
+composer db:optimize
+```
+   atau:
+   ```powershell
+.\scripts\db-optimize.ps1
+```
+7. Jika tidak ingin menggunakan Redis lokal, ubah `CACHE_DRIVER` dan `SESSION_DRIVER` ke `file` di `.env`.
+
+> Untuk Docker, aplikasi Laravel menggunakan `.env.docker` yang sudah mengarahkan `DB_HOST=mysql` dan `REDIS_HOST=redis`.
 
 ### Skala Minimal dan Elastis
 
