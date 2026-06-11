@@ -34,7 +34,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            \Illuminate\Routing\Middleware\ThrottleRequests::class,
+            // Throttle dimatikan untuk kebutuhan stress test
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
@@ -58,6 +58,6 @@ class Kernel extends HttpKernel
     ];
 
     protected $routeMiddleware = [
-        'jwt.auth' => \App\Http\Middleware\JwtMiddleware::class
+        'jwt.auth' => \App\Http\Middleware\JwtMiddleware::class,
     ];
 }
