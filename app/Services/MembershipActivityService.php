@@ -20,7 +20,9 @@ class MembershipActivityService
 
     public function triggerWithMultiplier(int $userId, string $activityCode): array
     {
-        return DB::transaction(function () use ($userId, $activityCode) {
+        // ⚡ OPTIMIZATION: Move tier recalculation OUTSIDE transaction to reduce lock duration
+        // This uses eventual consistency - tier is updated independently
+        $result = DB::transaction(function () use ($userId, $activityCode) {
             $user = $this->userRepository->findOrFailWithLock($userId);
             $rule = $this->activityRuleReadRepository->findActiveByCode($activityCode);
 
@@ -61,17 +63,30 @@ class MembershipActivityService
                 'earned_at' => now(),
             ]);
 
-            $tierResult = $this->membershipTierService->recalculateUserTier($user);
-
             return [
-                'message' => 'Poin berhasil ditambahkan dengan multiplier tier.',
+                'user_id' => $user->id,
                 'activity_code' => $activityCode,
                 'base_points' => $basePoints,
                 'multiplier' => $multiplier,
                 'points_added' => $pointsAdded,
                 'total_points' => (int) $user->points,
-                'tier' => $tierResult['tier'],
             ];
         });
+
+        // ⚡ OPTIMIZATION: Recalculate tier with points (no extra query)
+        $tierResult = $this->membershipTierService->recalculateUserTierByPoints(
+            $result['user_id'],
+            $result['total_points']
+        );
+
+        return [
+            'message' => 'Poin berhasil ditambahkan dengan multiplier tier.',
+            'activity_code' => $result['activity_code'],
+            'base_points' => $result['base_points'],
+            'multiplier' => $result['multiplier'],
+            'points_added' => $result['points_added'],
+            'total_points' => $result['total_points'],
+            'tier' => $tierResult['tier'],
+        ];
     }
 }

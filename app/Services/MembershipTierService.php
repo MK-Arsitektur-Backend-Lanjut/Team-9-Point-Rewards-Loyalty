@@ -43,6 +43,21 @@ class MembershipTierService
         return $this->recalculateUserTier($user);
     }
 
+    public function recalculateUserTierByPoints(int $userId, int $points): array
+    {
+        $resolvedTier = $this->membershipTierRepository->resolveTierByPoints($points);
+
+        $this->userRepository->update(User::query()->find($userId), [
+            'membership_tier_id' => $resolvedTier?->id,
+        ]);
+
+        return [
+            'user_id' => $userId,
+            'points' => (int) $points,
+            'tier' => $resolvedTier,
+        ];
+    }
+
     public function recalculateUserTier(User $user): array
     {
         $resolvedTier = $this->membershipTierRepository->resolveTierByPoints((int) $user->points);

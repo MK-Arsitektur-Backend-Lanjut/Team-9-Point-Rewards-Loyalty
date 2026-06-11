@@ -16,6 +16,13 @@ services:
       - loyalty_network
     depends_on:
       - db
+<<<<<<< Updated upstream
+=======
+      - redis
+    mem_limit: 1g
+    environment:
+      - PHP_MEMORY_LIMIT=512M
+>>>>>>> Stashed changes
 
   db:
     image: mysql:8.0

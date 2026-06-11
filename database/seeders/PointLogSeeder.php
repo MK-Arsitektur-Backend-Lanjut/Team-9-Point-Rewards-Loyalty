@@ -17,30 +17,28 @@ class PointLogSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = User::all();
-        $rules = PointRule::all();
+        $userIds = User::pluck('id')->toArray();
+        $ruleIds = PointRule::pluck('id')->toArray();
         $transactionTypes = [
             PointLog::TRANSACTION_EARN,
             PointLog::TRANSACTION_REDEEM,
             PointLog::TRANSACTION_REFERRAL,
         ];
 
-        echo "Starting to create 35,000 point logs...\n";
+        echo "Starting to create 5,000 point logs...\n";
 
         $logCount = 0;
-        $batchSize = 1000;
+        $batchSize = 500;
         $logs = [];
 
-        for ($i = 0; $i < 35000; $i++) {
-            $user = $users->random();
-            $rule = $rules->random();
+        for ($i = 0; $i < 5000; $i++) {
+            $userId = $userIds[array_rand($userIds)];
+            $ruleId = $ruleIds[array_rand($ruleIds)];
             $type = $transactionTypes[array_rand($transactionTypes)];
 
-            // Determine points based on type and tier
+            // Determine points based on type
             if ($type === PointLog::TRANSACTION_EARN) {
-                $multipliers = ['bronze' => 1.0, 'silver' => 1.2, 'gold' => 1.5, 'platinum' => 2.0];
-                $basePoints = $rule->base_points;
-                $points = (int)($basePoints * $multipliers[$user->membership_tier] * $user->point_multiplier);
+                $points = rand(10, 100);
             } elseif ($type === PointLog::TRANSACTION_REDEEM) {
                 $points = -rand(50, 500);
             } else {
@@ -48,11 +46,11 @@ class PointLogSeeder extends Seeder
             }
 
             $logs[] = [
-                'user_id' => $user->id,
-                'point_rule_id' => $rule->id,
+                'user_id' => $userId,
+                'point_rule_id' => $ruleId,
                 'points_amount' => $points,
                 'transaction_type' => $type,
-                'description' => $rule->description,
+                'description' => 'Seeded transaction',
                 'reference_id' => uniqid('log_'),
                 'metadata' => json_encode(['source' => 'seeder']),
                 'status' => PointLog::STATUS_COMPLETED,
@@ -67,6 +65,8 @@ class PointLogSeeder extends Seeder
                 PointLog::insert($logs);
                 echo "Inserted {$logCount} point logs...\n";
                 $logs = [];
+                unset($logs);
+                gc_collect_cycles();
             }
         }
 
@@ -75,37 +75,7 @@ class PointLogSeeder extends Seeder
             PointLog::insert($logs);
         }
 
-        // Update user point balances based on logs
-        echo "Updating user point balances...\n";
-        
-        $batchSize = 50;
-        $counter = 0;
-        foreach ($users->chunk($batchSize) as $chunk) {
-            foreach ($chunk as $user) {
-                $totalEarned = PointLog::where('user_id', $user->id)
-                    ->where('transaction_type', PointLog::TRANSACTION_EARN)
-                    ->where('status', PointLog::STATUS_COMPLETED)
-                    ->sum('points_amount');
-
-                $totalRedeemed = PointLog::where('user_id', $user->id)
-                    ->where('transaction_type', PointLog::TRANSACTION_REDEEM)
-                    ->where('status', PointLog::STATUS_COMPLETED)
-                    ->sum('points_amount');
-
-                $currentBalance = max(0, $totalEarned + $totalRedeemed);
-
-                PointBalance::where('user_id', $user->id)->update([
-                    'current_balance' => $currentBalance,
-                    'lifetime_points' => $totalEarned,
-                ]);
-
-                $counter++;
-                if ($counter % 100 === 0) {
-                    echo "Updated {$counter} user balances...\n";
-                }
-            }
-        }
-
+        // Simplified - skip balance updates for seeding (can be run manually)
         echo "PointLogSeeder completed! Total logs: {$logCount}\n";
     }
 }

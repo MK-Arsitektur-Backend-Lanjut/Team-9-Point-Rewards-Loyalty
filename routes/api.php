@@ -4,7 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RewardProcessingController;
 use App\Http\Controllers\Api\ActivityRuleController;
 use App\Http\Controllers\Api\MembershipController;
-use App\Http\Controllers\Api\RewardController;
+use App\Http\Controllers\Api\RewardController as ApiRewardController;
+use App\Http\Controllers\RewardController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\StatementController;
 
@@ -34,8 +35,8 @@ Route::middleware(['jwt.auth'])->group(function () {
 
 // Modul 1 & 4 Routes
 Route::apiResource('activity-rules', ActivityRuleController::class)->except(['show']);
-Route::apiResource('rewards', RewardController::class)->except(['show']);
-Route::post('rewards/{reward}/decrement-stock', [RewardController::class, 'decrementStock']);
+Route::apiResource('rewards', ApiRewardController::class)->except(['show']);
+Route::post('rewards/{reward}/decrement-stock', [ApiRewardController::class, 'decrementStock']);
 Route::post('/activity/trigger', [ActivityRuleController::class, 'trigger']);
 
 Route::get('membership/tiers', [MembershipController::class, 'listTiers']);
@@ -75,4 +76,33 @@ Route::prefix('rewards')->group(function () {
     // Get all logs with filters
     Route::get('/all-logs', [RewardProcessingController::class, 'getAllLogs'])
         ->name('rewards.all-logs');
+});
+
+// ============================================================
+// DEMO ROUTES - Untuk Testing Optimasi Database
+// ============================================================
+Route::prefix('demo/rewards')->group(function () {
+    // Add points
+    Route::post('/add', [RewardController::class, 'addPoints'])
+        ->name('demo.rewards.add');
+
+    // Redeem points
+    Route::post('/redeem', [RewardController::class, 'redeemPoints'])
+        ->name('demo.rewards.redeem');
+
+    // Get balance
+    Route::get('/balance/{userId}', [RewardController::class, 'getBalance'])
+        ->name('demo.rewards.balance');
+
+    // Validate balance
+    Route::get('/validate/{userId}/{points}', [RewardController::class, 'validateBalance'])
+        ->name('demo.rewards.validate');
+
+    // Get detailed balance info
+    Route::get('/details/{userId}', [RewardController::class, 'getDetails'])
+        ->name('demo.rewards.details');
+
+    // Performance demo
+    Route::get('/performance', [RewardController::class, 'performanceDemo'])
+        ->name('demo.rewards.performance');
 });

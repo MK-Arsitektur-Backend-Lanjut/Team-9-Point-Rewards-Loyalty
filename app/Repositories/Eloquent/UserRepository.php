@@ -36,7 +36,10 @@ class UserRepository implements UserRepositoryInterface
 
     public function findOrFailWithLock(int $id): User
     {
-        return User::query()->lockForUpdate()->findOrFail($id);
+        return User::query()
+            ->with('membershipTier')
+            ->lockForUpdate()
+            ->findOrFail($id);
     }
 
     public function findByReferralCode(string $referralCode): ?User
