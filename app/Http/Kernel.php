@@ -34,7 +34,8 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            \Illuminate\Routing\Middleware\ThrottleRequests::class,
+            // THROTTLE DINONAKTIFKAN SEMENTARA UNTUK STRESS TEST
+            // \Illuminate\Routing\Middleware\ThrottleRequests::class . ':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
@@ -57,7 +58,14 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
     ];
 
+    /**
+     * The application's route middleware.
+     *
+     * These middleware may be assigned to groups or used individually.
+     *
+     * @var array<string, class-string|string>
+     */
     protected $routeMiddleware = [
-        'jwt.auth' => \App\Http\Middleware\JwtMiddleware::class
+        'jwt.auth' => \App\Http\Middleware\JwtMiddleware::class,
     ];
 }

@@ -17,14 +17,26 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            UserSeeder::class,
-            PointRuleSeeder::class,
-            ReferralSeeder::class,
-            PointLogSeeder::class,
-            ActivityRuleSeeder::class,
+            // HARUS PALING AWAL - karena tabel lain mungkin depend pada membership tiers
             MembershipTierSeeder::class,
+
+            // User & auth related
+            UserSeeder::class,
+
+            // Rules & configurations
+            PointRuleSeeder::class,
+            ActivityRuleSeeder::class,
+
+            // Rewards
             RewardSeeder::class,
+
+            // Transactions & logs (depend on users and rules)
+            PointLogSeeder::class,
+            ReferralLogSeeder::class,
             PointActivityLogSeeder::class,
+
+            // Referral (depend on users)
+            ReferralSeeder::class,
         ]);
     }
 }

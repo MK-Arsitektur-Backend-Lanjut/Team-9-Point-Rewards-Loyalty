@@ -22,3 +22,8 @@ docker-compose.override.yml
 storage/logs/*
 .env.local
 storage/framework/cache/data/
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
