@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Referral;
 use App\Models\PointBalance;
+use Illuminate\Support\Facades\DB;
 
 class ReferralSeeder extends Seeder
 {
