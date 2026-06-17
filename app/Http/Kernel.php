@@ -34,8 +34,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            // THROTTLE DINONAKTIFKAN SEMENTARA UNTUK STRESS TEST
-            // \Illuminate\Routing\Middleware\ThrottleRequests::class . ':api',
+            // Throttle dimatikan untuk kebutuhan stress test
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];

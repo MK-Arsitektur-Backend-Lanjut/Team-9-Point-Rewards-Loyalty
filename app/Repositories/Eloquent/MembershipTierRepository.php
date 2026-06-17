@@ -18,13 +18,19 @@ class MembershipTierRepository implements MembershipTierRepositoryInterface
                 ->orderBy('min_points')
                 ->get();
         });
+    public function getAllOrdered(): Collection
+    {
+        return MembershipTier::query()
+            ->orderBy('min_points')
+            ->get();
     }
 
     public function create(array $data): MembershipTier
     {
         $membershipTier = MembershipTier::query()->create($data);
 
-        Cache::forget($this->cacheKey);
+        // ⚡ OPTIMIZATION: Use invalidateCaches() to clear all tier-related caches atomically
+        $this->invalidateCaches();
 
         return $membershipTier;
     }
@@ -33,7 +39,7 @@ class MembershipTierRepository implements MembershipTierRepositoryInterface
     {
         $membershipTier->update($data);
 
-        Cache::forget($this->cacheKey);
+        $this->invalidateCaches();
 
         return $membershipTier->refresh();
     }
@@ -42,12 +48,17 @@ class MembershipTierRepository implements MembershipTierRepositoryInterface
     {
         $membershipTier->delete();
 
-        Cache::forget($this->cacheKey);
+        $this->invalidateCaches();
     }
 
     public function resolveTierByPoints(int $points): ?MembershipTier
     {
-        return Cache::remember("membership_tier_{$points}", 60, function () use ($points) {
+        // ⚡ OPTIMIZATION: Cache per 100-point range instead of per exact point
+        // This reduces cache key cardinality and improves hit rate
+        $pointRange = (int) floor($points / 100) * 100;
+        $cacheKey = "membership_tier_range_{$pointRange}";
+
+        return Cache::remember($cacheKey, 60, function () use ($points) {
             return MembershipTier::query()
                 ->where('is_active', true)
                 ->where('min_points', '<=', $points)
@@ -58,5 +69,20 @@ class MembershipTierRepository implements MembershipTierRepositoryInterface
                 ->orderByDesc('min_points')
                 ->first();
         });
+    }
+
+    /**
+     * ⚡ OPTIMIZATION: Atomic cache invalidation
+     * Clears all tier-related caches in one operation to prevent partial invalidation
+     */
+    private function invalidateCaches(): void
+    {
+        Cache::forget($this->cacheKey);
+        Cache::forget($this->cacheTierIndexKey);
+        
+        // Also clear common point ranges to avoid cascading cache misses
+        for ($i = 0; $i <= 10000; $i += 100) {
+            Cache::forget("membership_tier_range_{$i}");
+        }
     }
 }

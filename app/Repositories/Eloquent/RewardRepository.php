@@ -6,6 +6,7 @@ use App\Models\Reward;
 use App\Repositories\Contracts\RewardRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class RewardRepository implements RewardRepositoryInterface
 {
@@ -47,13 +48,23 @@ class RewardRepository implements RewardRepositoryInterface
 
     public function decrementStock(Reward $reward, int $quantity): bool
     {
-        $updated = Reward::query()
-            ->whereKey($reward->id)
-            ->where('stock', '>=', $quantity)
-            ->decrement('stock', $quantity) > 0;
-
-        Cache::forget($this->cacheKey);
-
-        return $updated;
+        return DB::transaction(function () use ($reward, $quantity) {
+            $currentReward = Reward::query()
+                ->whereKey($reward->id)
+                ->lockForUpdate()
+                ->first();
+            
+            if (!$currentReward || $currentReward->stock < $quantity) {
+                return false;
+            }
+            
+            Reward::query()
+                ->whereKey($reward->id)
+                ->decrement('stock', $quantity);
+            
+            Cache::forget($this->cacheKey);
+            
+            return true;
+        });
     }
 }

@@ -32,7 +32,18 @@ Route::get('/', function () {
             'referrals' => $hasReferralLogs ? ReferralLog::query()->count() : 0,
             'redemptions' => $hasRewardRedemptions ? RewardRedemption::query()->count() : 0,
         ],
-        'users' => User::query()->select('id', 'name', 'points', 'membership_tier_id', 'referral_code')->orderBy('id')->limit(12)->get(),
+        'users' => User::query()
+            ->leftJoin('point_balances', 'users.id', '=', 'point_balances.user_id')
+            ->select(
+                'users.id',
+                'users.name',
+                \Illuminate\Support\Facades\DB::raw('COALESCE(point_balances.current_balance, 0) as points'),
+                'users.membership_tier_id',
+                'users.referral_code'
+            )
+            ->orderBy('users.id')
+            ->limit(12)
+            ->get(),
         'activityRules' => ActivityRule::query()->select('id', 'activity_code', 'point_value', 'is_active')->orderBy('id')->limit(12)->get(),
         'rewards' => Reward::query()->select('id', 'name', 'points_required', 'stock', 'is_physical')->orderBy('id')->limit(12)->get(),
         'tiers' => $hasMembershipTiers
