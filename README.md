@@ -15,15 +15,18 @@ HTTP Failed	0%
 error rate : 0%
 Total requests	150 
 Throughput 2.75 req/s 
+avg response : 2 s
 
 100 Concurent Users :
 HTTP Failed	0%
 error rate : 30%
 Total requests	180 
 Throughput 2.75 req/s 
+Avg Response : 18 s
 
 1000 Concurent Users :
 HTTP Failed	0%
 error rate : 80%
 Total requests	5000
 Throughput 2.75 req/s 
+Avg Response : 10 s
