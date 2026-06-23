@@ -69,7 +69,7 @@ class RewardProcessingService
                 'success' => true,
                 'user_id' => $userId,
                 'points_added' => $points,
-                'current_balance' => $balance->fresh()->current_balance,
+                'current_balance' => $balance->current_balance + $points,
             ];
         });
     }
@@ -118,7 +118,7 @@ class RewardProcessingService
                 'success' => true,
                 'user_id' => $userId,
                 'points_redeemed' => $points,
-                'current_balance' => $balance->fresh()->current_balance,
+                'current_balance' => $balance->current_balance - $points,
             ];
         });
     }

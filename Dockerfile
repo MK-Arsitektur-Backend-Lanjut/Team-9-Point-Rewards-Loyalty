@@ -28,6 +28,9 @@ COPY . .
 ENV COMPOSER_PROCESS_TIMEOUT=${COMPOSER_PROCESS_TIMEOUT}
 RUN composer install --no-interaction --no-dev --prefer-dist --no-scripts
 
+# Tune PHP-FPM pool for higher concurrency
+COPY docker/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
+
 # Set permissions
 RUN chown -R www-data:www-data /app
 
