@@ -44,11 +44,13 @@ class RewardProcessingService
             // 1. Pastikan user exists
             $user = User::findOrFail($userId);
 
-            // 2. Update atau buat point_balances
+            // 2. Update atau buat point_balances dengan row lock
             $balance = PointBalance::firstOrCreate(
                 ['user_id' => $userId],
                 ['current_balance' => 0]
             );
+            // Re-acquire dengan lock setelah firstOrCreate untuk konsistensi
+            $balance = PointBalance::where('user_id', $userId)->lockForUpdate()->first();
 
             // 3. Tambah points ke current_balance (cache)
             $balance->increment('current_balance', $points);
@@ -90,8 +92,8 @@ class RewardProcessingService
     public function redeemPoints(int $userId, int $points, string $description = 'Points redeemed'): array
     {
         return DB::transaction(function () use ($userId, $points, $description) {
-            // 1. Ambil balance dari point_balances (quick lookup, bukan aggregate)
-            $balance = PointBalance::where('user_id', $userId)->first();
+            // 1. Ambil balance dengan row lock untuk mencegah race condition
+            $balance = PointBalance::where('user_id', $userId)->lockForUpdate()->first();
 
             if (!$balance || $balance->current_balance < $points) {
                 throw new InsufficientPointsException(

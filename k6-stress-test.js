@@ -3,13 +3,13 @@
   ║         K6 STRESS TEST - LOYALTY POINT REWARDS SYSTEM          ║
   ║                    Laravel Membership Module                   ║
   ╚════════════════════════════════════════════════════════════════╝
-  
+
   Script untuk testing stress pada sistem Loyalty Point Rewards
   dengan skenario:
   - Normal Load (Ramp up gradually)
   - Race Condition (Concurrent requests from same user)
   - Mixed Load (Various operations)
-  
+
   Penggunaan:
   k6 run k6-stress-test.js
   k6 run k6-stress-test.js --env SCENARIO=race_condition
@@ -17,43 +17,47 @@
 */
 
 import http from 'k6/http';
-import { check, group, sleep, fail } from 'k6';
-import { Rate, Trend, Counter, Gauge, Histogram } from 'k6/metrics';
-import encoding from 'k6/encoding';
+import { check, group, sleep } from 'k6';
+import { Rate, Trend, Counter, Gauge } from 'k6/metrics';
 
 // ================================================================
 // CUSTOM METRICS
 // ================================================================
 
-// Error Rates (melihat persentase request yang gagal)
-const triggerActivityErrorRate = new Rate('trigger_activity_errors');
-const getTiersErrorRate = new Rate('get_tiers_errors');
-const redeemRewardErrorRate = new Rate('redeem_reward_errors');
+// Response Time Distribution (p50, p95, p99)
+const addPointsDuration   = new Trend('add_points_duration');
+const balanceDuration     = new Trend('balance_duration');
+const redeemDuration      = new Trend('redeem_duration');
+const raceConditionDuration = new Trend('race_condition_duration');
+
+// Error Rates
+const addPointsErrorRate  = new Rate('add_points_errors');
+const balanceErrorRate    = new Rate('balance_errors');
+const redeemErrorRate     = new Rate('redeem_errors');
 const raceConditionErrorRate = new Rate('race_condition_errors');
 
-// Response Time Distribution (p50, p95, p99)
-const triggerActivityDuration = new Trend('trigger_activity_duration');
-const getTiersDuration = new Trend('get_tiers_duration');
-const redeemRewardDuration = new Trend('redeem_reward_duration');
-
 // Total Request Count
-const triggerActivityCount = new Counter('trigger_activity_total');
-const getTiersCount = new Counter('get_tiers_total');
-const redeemRewardCount = new Counter('redeem_reward_total');
-const raceConditionCount = new Counter('race_condition_total');
+const addPointsCount      = new Counter('add_points_total');
+const balanceCount        = new Counter('balance_total');
+const redeemCount         = new Counter('redeem_total');
+const raceConditionCount  = new Counter('race_condition_total');
 
-// Concurrent VUs (menunjukkan berapa banyak user yang sedang aktif)
+// Concurrent VUs
 const activeVUs = new Gauge('active_vus', true);
 
 // ================================================================
 // CONFIGURATION
 // ================================================================
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:8000/api';
-const SCENARIO = __ENV.SCENARIO || 'normal'; // normal, race_condition, mixed
-const LOAD = parseInt(__ENV.LOAD || '100'); // Jumlah concurrent users
-const DURATION = __ENV.DURATION || '1m'; // Durasi test
-const RAMP_UP = __ENV.RAMP_UP || '10s'; // Waktu ramp up
-const RAMP_DOWN = __ENV.RAMP_DOWN || '10s'; // Waktu ramp down
+const BASE_URL  = __ENV.BASE_URL  || 'http://localhost:8000/api';
+const SCENARIO  = __ENV.SCENARIO  || 'normal'; // normal, race_condition, mixed
+const LOAD      = parseInt(__ENV.LOAD || '100');
+const DURATION  = __ENV.DURATION  || '1m';
+const RAMP_UP   = __ENV.RAMP_UP   || '10s';
+const RAMP_DOWN = __ENV.RAMP_DOWN || '10s';
+
+// Demo routes — body: { user_id, points, description }
+// GET balance uses path param: /demo/rewards/balance/{userId}
+const DEMO = `${BASE_URL}/demo/rewards`;
 
 console.log(`
 ╔════════════════════════════════════════════════════════════════╗
@@ -77,41 +81,33 @@ export const options = {
       executor: 'ramping-vus',
       startVUs: 0,
       stages: [
-        { duration: RAMP_UP, target: LOAD },
-        { duration: DURATION, target: LOAD },
-        { duration: RAMP_DOWN, target: 0 },
+        { duration: RAMP_UP,   target: LOAD },
+        { duration: DURATION,  target: LOAD },
+        { duration: RAMP_DOWN, target: 0    },
       ],
       gracefulRampDown: '10s',
     },
   },
-  
-  // SLA Thresholds - Kondisi yang harus terpenuhi
+
   thresholds: {
-    // Response time - 95% request harus < 500ms, 99% < 1000ms
-    'add_points_duration': ['p(95)<500', 'p(99)<1000', 'avg<300'],
-    'redeem_duration': ['p(95)<500', 'p(99)<1000', 'avg<300'],
-    'balance_duration': ['p(95)<200', 'p(99)<500', 'avg<150'],
-    
-    // Error rate - maksimal 10% error
-    'add_points_errors': ['rate<0.1'],
-    'redeem_errors': ['rate<0.1'],
-    'balance_errors': ['rate<0.05'],
-    
-    // Overall metrics
-    'http_req_duration': ['p(95)<1000', 'p(99)<2000'],
-    'http_req_failed': ['rate<0.1'],
+    'add_points_duration':    ['p(95)<500', 'p(99)<1000', 'avg<300'],
+    'redeem_duration':        ['p(95)<500', 'p(99)<1000', 'avg<300'],
+    'balance_duration':       ['p(95)<200', 'p(99)<500',  'avg<150'],
+
+    'add_points_errors':      ['rate<0.1'],
+    'redeem_errors':          ['rate<0.1'],
+    'balance_errors':         ['rate<0.05'],
+
+    'http_req_duration':      ['p(95)<1000', 'p(99)<2000'],
+    'http_req_failed':        ['rate<0.1'],
   },
 };
 
 // ================================================================
-// SETUP - Dijalankan sekali sebelum test mulai
+// SETUP
 // ================================================================
 export function setup() {
-  console.log('🚀 Starting setup...');
-  
-  // Optional: Bisa tambahkan setup initial data di sini
-  // Misal: Seed user dengan poin awal
-  
+  console.log('Starting setup...');
   return {
     baseUrl: BASE_URL,
     scenario: SCENARIO,
@@ -124,11 +120,10 @@ export function setup() {
 // ================================================================
 export default function (data) {
   activeVUs.add(__VU);
-  
-  // Rotate through multiple users untuk simulasi yang lebih realistis
-  const baseUserId = 1000;
-  const userId = baseUserId + (__VU % 100); // 100 different users
-  
+
+  // Rotate through users 1-100 (seeder creates 1000 users starting from ID 1)
+  const userId = (__VU % 100) + 1;
+
   try {
     if (SCENARIO === 'race_condition') {
       raceConditionScenario(userId);
@@ -138,7 +133,7 @@ export default function (data) {
       normalScenario(userId);
     }
   } catch (error) {
-    console.error(`❌ Error in VU ${__VU}: ${error}`);
+    console.error(`Error in VU ${__VU}: ${error}`);
   }
 }
 
@@ -146,81 +141,64 @@ export default function (data) {
 // SCENARIO 1: NORMAL WORKFLOW
 // ================================================================
 function normalScenario(userId) {
+  // -- Add Points --
   group(`[Normal] User ${userId} - Add Points`, () => {
-    const payload = JSON.stringify({
-      user_id: userId,
-      points: 100,
-      description: `Stress test - Add points iteration ${__ITER}`,
-    });
-
     const res = http.post(
-      `${BASE_URL}/points/add`,
-      payload,
-      {
-        headers: { 'Content-Type': 'application/json' },
-        tags: { name: 'AddPoints' },
-      }
+      `${DEMO}/add`,
+      JSON.stringify({ user_id: userId, points: 100, description: `Stress test iter ${__ITER}` }),
+      { headers: { 'Content-Type': 'application/json' }, tags: { name: 'AddPoints' } }
     );
 
-    const isSuccess = check(res, {
-      'Status is 200': (r) => r.status === 200,
-      'Response contains success': (r) => r.body.includes('success') || r.body.includes('data'),
-      'Response time < 500ms': (r) => r.timings.duration < 500,
+    const ok = check(res, {
+      'status 200':              (r) => r.status === 200,
+      'body has success:true':   (r) => r.json('success') === true,
+      'response time < 500ms':   (r) => r.timings.duration < 500,
     });
 
     addPointsDuration.add(res.timings.duration);
-    addPointsErrorRate.add(!isSuccess ? 1 : 0);
+    addPointsErrorRate.add(ok ? 0 : 1);
     addPointsCount.add(1);
   });
 
   sleep(0.5);
 
+  // -- Check Balance --
   group(`[Normal] User ${userId} - Check Balance`, () => {
     const res = http.get(
-      `${BASE_URL}/points/balance?user_id=${userId}`,
-      {
-        tags: { name: 'CheckBalance' },
-      }
+      `${DEMO}/balance/${userId}`,
+      { tags: { name: 'CheckBalance' } }
     );
 
-    const isSuccess = check(res, {
-      'Status is 200': (r) => r.status === 200,
-      'Has balance data': (r) => r.body.includes('balance') || r.body.includes('data'),
-      'Response time < 200ms': (r) => r.timings.duration < 200,
+    const ok = check(res, {
+      'status 200':              (r) => r.status === 200,
+      'body has balance field':  (r) => r.json('balance') !== undefined,
+      'response time < 200ms':   (r) => r.timings.duration < 200,
     });
 
     balanceDuration.add(res.timings.duration);
-    balanceErrorRate.add(!isSuccess ? 1 : 0);
+    balanceErrorRate.add(ok ? 0 : 1);
     balanceCount.add(1);
   });
 
   sleep(0.5);
 
-  group(`[Normal] User ${userId} - Redeem Reward`, () => {
-    const payload = JSON.stringify({
-      user_id: userId,
-      reward_id: Math.floor(Math.random() * 5) + 1,
-      points: 50,
-      description: `Stress test - Redeem iteration ${__ITER}`,
-    });
-
+  // -- Redeem Points --
+  group(`[Normal] User ${userId} - Redeem Points`, () => {
     const res = http.post(
-      `${BASE_URL}/rewards/redeem`,
-      payload,
-      {
-        headers: { 'Content-Type': 'application/json' },
-        tags: { name: 'RedeemReward' },
-      }
+      `${DEMO}/redeem`,
+      JSON.stringify({ user_id: userId, points: 50, description: `Redeem iter ${__ITER}` }),
+      { headers: { 'Content-Type': 'application/json' }, tags: { name: 'RedeemPoints' } }
     );
 
-    const isSuccess = check(res, {
-      'Status is 200 or 422': (r) => r.status === 200 || r.status === 422,
-      'Response has data': (r) => r.body.length > 0,
-      'Response time < 500ms': (r) => r.timings.duration < 500,
+    // 200 = success, 422 = insufficient points (valid business logic)
+    const ok = check(res, {
+      'status 200 or 422':       (r) => r.status === 200 || r.status === 422,
+      'body not empty':          (r) => r.body.length > 0,
+      'response time < 500ms':   (r) => r.timings.duration < 500,
     });
 
     redeemDuration.add(res.timings.duration);
-    redeemErrorRate.add(!isSuccess ? 1 : 0);
+    redeemErrorRate.add(ok ? 0 : 1);
     redeemCount.add(1);
   });
 
@@ -231,77 +209,50 @@ function normalScenario(userId) {
 // SCENARIO 2: RACE CONDITION - CONCURRENT REDEEMS
 // ================================================================
 function raceConditionScenario(userId) {
-  group(`[RaceCondition] User ${userId} - Setup Initial Points`, () => {
-    const addPayload = JSON.stringify({
-      user_id: userId,
-      points: 50000, // Banyak poin untuk simulasi race condition
-      description: 'Race condition test - initial load',
-    });
-
+  // Give user plenty of points first
+  group(`[RaceCondition] User ${userId} - Load Points`, () => {
     http.post(
-      `${BASE_URL}/points/add`,
-      addPayload,
-      {
-        headers: { 'Content-Type': 'application/json' },
-        tags: { name: 'RaceConditionSetup' },
-      }
+      `${DEMO}/add`,
+      JSON.stringify({ user_id: userId, points: 50000, description: 'Race condition setup' }),
+      { headers: { 'Content-Type': 'application/json' }, tags: { name: 'RaceSetup' } }
     );
   });
 
   sleep(0.2);
 
+  // Fire 10 concurrent redeem requests for the same user
   group(`[RaceCondition] User ${userId} - Concurrent Redeems`, () => {
-    // Array untuk menyimpan semua requests
-    const redeemPayload = JSON.stringify({
-      user_id: userId,
-      reward_id: 1,
-      points: 1000,
-      description: `Race condition test - concurrent attempt ${__ITER}`,
-    });
+    const redeemBody = JSON.stringify({ user_id: userId, points: 1000, description: `Race iter ${__ITER}` });
+    const requests = Array.from({ length: 10 }, () => ({
+      method: 'POST',
+      url: `${DEMO}/redeem`,
+      body: redeemBody,
+      params: { headers: { 'Content-Type': 'application/json' }, tags: { name: 'RaceRedeem' } },
+    }));
 
-    const requests = [];
-    
-    // Buat 10 concurrent redeem requests
-    for (let i = 0; i < 10; i++) {
-      requests.push({
-        method: 'POST',
-        url: `${BASE_URL}/rewards/redeem`,
-        body: redeemPayload,
-        params: {
-          headers: { 'Content-Type': 'application/json' },
-          tags: { name: 'RaceConditionRedeem' },
-        },
-      });
-    }
-
-    // Execute semua requests bersamaan (simulates race condition)
     const responses = http.batch(requests);
-
-    responses.forEach((response, index) => {
-      const isSuccess = check(response, {
-        'Redeem attempted': (r) => r.status !== 0,
-        'Valid response': (r) => r.status === 200 || r.status === 422,
+    responses.forEach((r) => {
+      const ok = check(r, {
+        'status 200 or 422': (r) => r.status === 200 || r.status === 422,
+        'no server error':   (r) => r.status !== 500,
       });
-
-      raceConditionDuration?.add(response.timings.duration);
-      raceConditionErrorRate.add(!isSuccess ? 1 : 0);
+      raceConditionDuration.add(r.timings.duration);
+      raceConditionErrorRate.add(ok ? 0 : 1);
       raceConditionCount.add(1);
     });
   });
 
   sleep(0.5);
 
-  group(`[RaceCondition] User ${userId} - Verify Final Balance`, () => {
+  // Verify balance is consistent (no negative)
+  group(`[RaceCondition] User ${userId} - Verify Balance`, () => {
     const res = http.get(
-      `${BASE_URL}/points/balance?user_id=${userId}`,
-      {
-        tags: { name: 'RaceConditionVerify' },
-      }
+      `${DEMO}/balance/${userId}`,
+      { tags: { name: 'RaceVerify' } }
     );
-
     check(res, {
-      'Final balance retrieved': (r) => r.status === 200,
-      'Balance is consistent': (r) => r.body.includes('balance'),
+      'balance retrieved':       (r) => r.status === 200,
+      'balance non-negative':    (r) => (r.json('balance') ?? 0) >= 0,
     });
   });
 
@@ -315,81 +266,44 @@ function mixedScenario(userId) {
   const rand = Math.random();
 
   if (rand < 0.4) {
-    // 40% - Normal workflow
     normalScenario(userId);
   } else if (rand < 0.7) {
-    // 30% - Only check balance
-    group(`[Mixed] User ${userId} - Check Balance Only`, () => {
-      const res = http.get(
-        `${BASE_URL}/points/balance?user_id=${userId}`,
-        {
-          tags: { name: 'MixedBalance' },
-        }
-      );
-
-      check(res, {
-        'Status 200': (r) => r.status === 200,
-      });
-
+    // 30% - balance check only
+    group(`[Mixed] User ${userId} - Balance Only`, () => {
+      const res = http.get(`${DEMO}/balance/${userId}`, { tags: { name: 'MixedBalance' } });
+      const ok = check(res, { 'status 200': (r) => r.status === 200 });
       balanceDuration.add(res.timings.duration);
+      balanceErrorRate.add(ok ? 0 : 1);
       balanceCount.add(1);
     });
-
     sleep(0.5);
   } else if (rand < 0.9) {
-    // 20% - Add points only
+    // 20% - add points only
     group(`[Mixed] User ${userId} - Add Points Only`, () => {
-      const payload = JSON.stringify({
-        user_id: userId,
-        points: Math.floor(Math.random() * 200) + 50,
-        description: `Mixed test - Add points`,
-      });
-
       const res = http.post(
-        `${BASE_URL}/points/add`,
-        payload,
-        {
-          headers: { 'Content-Type': 'application/json' },
-          tags: { name: 'MixedAdd' },
-        }
+        `${DEMO}/add`,
+        JSON.stringify({ user_id: userId, points: Math.floor(Math.random() * 200) + 50, description: 'Mixed add' }),
+        { headers: { 'Content-Type': 'application/json' }, tags: { name: 'MixedAdd' } }
       );
-
-      check(res, {
-        'Status 200': (r) => r.status === 200,
-      });
-
+      const ok = check(res, { 'status 200': (r) => r.status === 200 });
       addPointsDuration.add(res.timings.duration);
+      addPointsErrorRate.add(ok ? 0 : 1);
       addPointsCount.add(1);
     });
-
     sleep(0.5);
   } else {
-    // 10% - Redeem only
+    // 10% - redeem only
     group(`[Mixed] User ${userId} - Redeem Only`, () => {
-      const payload = JSON.stringify({
-        user_id: userId,
-        reward_id: Math.floor(Math.random() * 5) + 1,
-        points: Math.floor(Math.random() * 100) + 20,
-        description: `Mixed test - Redeem`,
-      });
-
       const res = http.post(
-        `${BASE_URL}/rewards/redeem`,
-        payload,
-        {
-          headers: { 'Content-Type': 'application/json' },
-          tags: { name: 'MixedRedeem' },
-        }
+        `${DEMO}/redeem`,
+        JSON.stringify({ user_id: userId, points: Math.floor(Math.random() * 100) + 20, description: 'Mixed redeem' }),
+        { headers: { 'Content-Type': 'application/json' }, tags: { name: 'MixedRedeem' } }
       );
-
-      check(res, {
-        'Status 200 or 422': (r) => r.status === 200 || r.status === 422,
-      });
-
+      const ok = check(res, { 'status 200 or 422': (r) => r.status === 200 || r.status === 422 });
       redeemDuration.add(res.timings.duration);
+      redeemErrorRate.add(ok ? 0 : 1);
       redeemCount.add(1);
     });
-
     sleep(0.5);
   }
 
@@ -397,7 +311,7 @@ function mixedScenario(userId) {
 }
 
 // ================================================================
-// TEARDOWN - Dijalankan sekali setelah test selesai
+// TEARDOWN
 // ================================================================
 export function teardown(data) {
   console.log(`
@@ -408,10 +322,6 @@ export function teardown(data) {
 ║ End Time:           ${new Date().toISOString()}
 ║ Total VUs:          ${LOAD}
 ║ Scenario:           ${SCENARIO}
-║ Status:             ✅ PASSED
 ╚════════════════════════════════════════════════════════════════╝
   `);
 }
-
-// Helper metric (placeholder untuk race condition)
-const raceConditionDuration = new Trend('race_condition_duration');
