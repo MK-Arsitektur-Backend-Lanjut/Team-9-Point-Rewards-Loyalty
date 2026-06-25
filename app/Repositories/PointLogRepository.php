@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\PointLog;
 use App\Repositories\Contracts\PointLogRepositoryContract;
+use Illuminate\Support\Facades\Cache;
 
 class PointLogRepository implements PointLogRepositoryContract
 {
@@ -12,6 +13,8 @@ class PointLogRepository implements PointLogRepositoryContract
      */
     public function create(array $data): object
     {
+        Cache::flush();
+
         return PointLog::create($data);
     }
 
@@ -20,12 +23,16 @@ class PointLogRepository implements PointLogRepositoryContract
      */
     public function getByUser(int $userId, int $limit = 50, int $offset = 0): array
     {
-        return PointLog::where('user_id', $userId)
-            ->orderByDesc('created_at')
-            ->limit($limit)
-            ->offset($offset)
-            ->get()
-            ->toArray();
+        $cacheKey = "point_logs_user_{$userId}_{$limit}_{$offset}";
+
+        return Cache::remember($cacheKey, 60, function () use ($userId, $limit, $offset) {
+            return PointLog::where('user_id', $userId)
+                ->orderByDesc('created_at')
+                ->limit($limit)
+                ->offset($offset)
+                ->get()
+                ->toArray();
+        });
     }
 
     /**
@@ -33,12 +40,16 @@ class PointLogRepository implements PointLogRepositoryContract
      */
     public function getByTransactionType(string $type, int $limit = 50, int $offset = 0): array
     {
-        return PointLog::where('transaction_type', $type)
-            ->orderByDesc('created_at')
-            ->limit($limit)
-            ->offset($offset)
-            ->get()
-            ->toArray();
+        $cacheKey = "point_logs_type_{$type}_{$limit}_{$offset}";
+
+        return Cache::remember($cacheKey, 60, function () use ($type, $limit, $offset) {
+            return PointLog::where('transaction_type', $type)
+                ->orderByDesc('created_at')
+                ->limit($limit)
+                ->offset($offset)
+                ->get()
+                ->toArray();
+        });
     }
 
     /**
@@ -46,18 +57,22 @@ class PointLogRepository implements PointLogRepositoryContract
      */
     public function getPaginated(int $perPage = 50, int $page = 1): array
     {
-        $logs = PointLog::orderByDesc('created_at')
-            ->paginate($perPage, ['*'], 'page', $page);
+        $cacheKey = "point_logs_page_{$page}_{$perPage}";
 
-        return [
-            'data' => $logs->items(),
-            'pagination' => [
-                'total' => $logs->total(),
-                'per_page' => $logs->perPage(),
-                'current_page' => $logs->currentPage(),
-                'last_page' => $logs->lastPage(),
-            ]
-        ];
+        return Cache::remember($cacheKey, 60, function () use ($perPage, $page) {
+            $logs = PointLog::orderByDesc('created_at')
+                ->paginate($perPage, ['*'], 'page', $page);
+
+            return [
+                'data' => $logs->items(),
+                'pagination' => [
+                    'total' => $logs->total(),
+                    'per_page' => $logs->perPage(),
+                    'current_page' => $logs->currentPage(),
+                    'last_page' => $logs->lastPage(),
+                ]
+            ];
+        });
     }
 
     /**
@@ -65,10 +80,12 @@ class PointLogRepository implements PointLogRepositoryContract
      */
     public function getTotalEarned(int $userId): int
     {
-        return (int) PointLog::where('user_id', $userId)
-            ->where('transaction_type', PointLog::TRANSACTION_EARN)
-            ->where('status', PointLog::STATUS_COMPLETED)
-            ->sum('points_amount');
+        return Cache::remember("total_earned_{$userId}", 60, function () use ($userId) {
+            return (int) PointLog::where('user_id', $userId)
+                ->where('transaction_type', PointLog::TRANSACTION_EARN)
+                ->where('status', PointLog::STATUS_COMPLETED)
+                ->sum('points_amount');
+        });
     }
 
     /**
@@ -76,10 +93,12 @@ class PointLogRepository implements PointLogRepositoryContract
      */
     public function getTotalRedeemed(int $userId): int
     {
-        return (int) PointLog::where('user_id', $userId)
-            ->where('transaction_type', PointLog::TRANSACTION_REDEEM)
-            ->where('status', PointLog::STATUS_COMPLETED)
-            ->sum('points_amount');
+        return Cache::remember("total_redeemed_{$userId}", 60, function () use ($userId) {
+            return (int) PointLog::where('user_id', $userId)
+                ->where('transaction_type', PointLog::TRANSACTION_REDEEM)
+                ->where('status', PointLog::STATUS_COMPLETED)
+                ->sum('points_amount');
+        });
     }
 
     /**
@@ -87,11 +106,15 @@ class PointLogRepository implements PointLogRepositoryContract
      */
     public function getBetweenDates(int $userId, string $startDate, string $endDate): array
     {
-        return PointLog::where('user_id', $userId)
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->orderByDesc('created_at')
-            ->get()
-            ->toArray();
+        $cacheKey = "logs_between_{$userId}_" . md5($startDate . $endDate);
+
+        return Cache::remember($cacheKey, 60, function () use ($userId, $startDate, $endDate) {
+            return PointLog::where('user_id', $userId)
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->orderByDesc('created_at')
+                ->get()
+                ->toArray();
+        });
     }
 
     /**
@@ -99,7 +122,9 @@ class PointLogRepository implements PointLogRepositoryContract
      */
     public function countByStatus(string $status): int
     {
-        return PointLog::where('status', $status)->count();
+        return Cache::remember("count_status_{$status}", 60, function () use ($status) {
+            return PointLog::where('status', $status)->count();
+        });
     }
 
     /**
@@ -107,37 +132,41 @@ class PointLogRepository implements PointLogRepositoryContract
      */
     public function getFiltered(array $filters, int $perPage = 50): array
     {
-        $query = PointLog::query();
+        $cacheKey = 'filtered_logs_' . md5(json_encode($filters) . $perPage);
 
-        if (isset($filters['user_id'])) {
-            $query->where('user_id', $filters['user_id']);
-        }
+        return Cache::remember($cacheKey, 60, function () use ($filters, $perPage) {
+            $query = PointLog::query();
 
-        if (isset($filters['transaction_type'])) {
-            $query->where('transaction_type', $filters['transaction_type']);
-        }
+            if (isset($filters['user_id'])) {
+                $query->where('user_id', $filters['user_id']);
+            }
 
-        if (isset($filters['status'])) {
-            $query->where('status', $filters['status']);
-        }
+            if (isset($filters['transaction_type'])) {
+                $query->where('transaction_type', $filters['transaction_type']);
+            }
 
-        if (isset($filters['start_date']) && isset($filters['end_date'])) {
-            $query->whereBetween('created_at', [
-                $filters['start_date'],
-                $filters['end_date']
-            ]);
-        }
+            if (isset($filters['status'])) {
+                $query->where('status', $filters['status']);
+            }
 
-        $logs = $query->orderByDesc('created_at')->paginate($perPage);
+            if (isset($filters['start_date']) && isset($filters['end_date'])) {
+                $query->whereBetween('created_at', [
+                    $filters['start_date'],
+                    $filters['end_date']
+                ]);
+            }
 
-        return [
-            'data' => $logs->items(),
-            'pagination' => [
-                'total' => $logs->total(),
-                'per_page' => $logs->perPage(),
-                'current_page' => $logs->currentPage(),
-                'last_page' => $logs->lastPage(),
-            ]
-        ];
+            $logs = $query->orderByDesc('created_at')->paginate($perPage);
+
+            return [
+                'data' => $logs->items(),
+                'pagination' => [
+                    'total' => $logs->total(),
+                    'per_page' => $logs->perPage(),
+                    'current_page' => $logs->currentPage(),
+                    'last_page' => $logs->lastPage(),
+                ]
+            ];
+        });
     }
 }

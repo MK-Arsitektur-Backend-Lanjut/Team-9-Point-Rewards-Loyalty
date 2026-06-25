@@ -39,6 +39,7 @@ class AuthService
                 'name' => $user->name,
                 'email' => $user->email,
                 'points_balance' => $user->points_balance,
+                'points_balance' => $user->active_points,
             ],
             'token' => $token
         ];
@@ -63,6 +64,7 @@ class AuthService
                 'name' => $user->name,
                 'email' => $user->email,
                 'points_balance' => $user->points_balance,
+                'points_balance' => $user->active_points,
             ],
             'token' => $token
         ];
@@ -89,6 +91,7 @@ class AuthService
             'name' => $user->name,
             'email' => $user->email,
             'points_balance' => $user->points_balance,
+            'points_balance' => $user->active_points,
         ];
     }
 }

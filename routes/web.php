@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Web\AccountController;
+use App\Http\Controllers\Web\AuthController;
 use App\Models\ActivityRule;
 use App\Models\MembershipTier;
 use App\Models\PointActivityLog;
@@ -7,10 +9,15 @@ use App\Models\ReferralLog;
 use App\Models\Reward;
 use App\Models\RewardRedemption;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 
 Route::get('/', function () {
+    if (! Auth::check()) {
+        return view('auth.login');
+    }
+
     $hasMembershipTiers = Schema::hasTable('membership_tiers');
     $hasReferralLogs = Schema::hasTable('referral_logs');
     $hasRewardRedemptions = Schema::hasTable('reward_redemptions');
@@ -44,4 +51,15 @@ Route::get('/', function () {
             : collect(),
         'recentLogs' => PointActivityLog::query()->select('id', 'user_id', 'activity_code', 'points_earned', 'earned_at')->latest('id')->limit(8)->get(),
     ]);
+});
+
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [AccountController::class, 'profile'])->name('user.profile');
+    Route::post('/profile', [AccountController::class, 'updateProfile'])->name('user.profile.update');
+    Route::post('/password', [AccountController::class, 'updatePassword'])->name('user.password.update');
+    Route::get('/statement', [AccountController::class, 'statement'])->name('user.statement');
 });

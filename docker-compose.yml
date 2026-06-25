@@ -42,13 +42,6 @@ services:
       --query_cache_size=0
       --query_cache_type=0
 
-  redis:
-    image: redis:alpine
-    container_name: loyalty-redis
-    restart: unless-stopped
-    networks:
-      - loyalty_network
-
   webserver:
     image: nginx:alpine
     container_name: loyalty-nginx
@@ -63,8 +56,20 @@ services:
     depends_on:
       - app
 
+  redis:
+    image: redis:7.0-alpine
+    container_name: loyalty-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - loyalty_network
+
 volumes:
   db_data:
+  redis_data:
 
 networks:
   loyalty_network:
