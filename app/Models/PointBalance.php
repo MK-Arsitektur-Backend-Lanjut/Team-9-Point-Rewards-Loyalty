@@ -12,23 +12,15 @@ class PointBalance extends Model
 
     protected $fillable = [
         'user_id',
-        'current_balance',
-        'expired_points',
-        'locked_points',
-        'lifetime_points'
+        'current_points'
     ];
 
     protected $casts = [
-        'current_balance' => 'integer',
-        'expired_points' => 'integer',
-        'locked_points' => 'integer',
-        'lifetime_points' => 'integer'
+        'current_points' => 'integer'
     ];
 
-    public $timestamps = true;
-
     /**
-     * Get the user that owns this balance
+     * Relasi ke User
      */
     public function user(): BelongsTo
     {

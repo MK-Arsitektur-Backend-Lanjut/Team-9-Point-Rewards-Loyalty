@@ -28,7 +28,8 @@ class RewardRedemptionService
             ]);
         }
 
-        return DB::transaction(function () use ($userId, $reward, $quantity) {
+        // ⚡ OPTIMIZATION: Execute redemption logic inside transaction with minimal lock duration
+        $result = DB::transaction(function () use ($userId, $reward, $quantity) {
             $user = $this->userRepository->findOrFailWithLock($userId);
             $pointsSpent = (int) $reward->points_required * $quantity;
 
@@ -70,15 +71,27 @@ class RewardRedemptionService
                 'earned_at' => now(),
             ]);
 
-            $tierResult = $this->membershipTierService->recalculateUserTier($user);
-
             return [
-                'message' => 'Redeem reward berhasil diproses.',
-                'redemption' => $redemption,
+                'user_id' => $user->id,
+                'redemption_id' => $redemption->id,
                 'points_spent' => $pointsSpent,
                 'remaining_points' => (int) $user->points,
-                'tier' => $tierResult['tier'],
+                'redemption' => $redemption,
             ];
         });
+
+        // ⚡ OPTIMIZATION: Recalculate tier with points (no extra query)
+        $tierResult = $this->membershipTierService->recalculateUserTierByPoints(
+            $result['user_id'],
+            $result['remaining_points']
+        );
+
+        return [
+            'message' => 'Redeem reward berhasil diproses.',
+            'redemption' => $result['redemption'],
+            'points_spent' => $result['points_spent'],
+            'remaining_points' => $result['remaining_points'],
+            'tier' => $tierResult['tier'],
+        ];
     }
 }

@@ -15,14 +15,37 @@ RUN apt-get update && apt-get install -y \
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql
 
-# Install PHP Redis extension
-RUN pecl install redis && docker-php-ext-enable redis
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    libpq-dev \
+    zip \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions
+RUN docker-php-ext-install \
+    pdo \
+    pdo_mysql \
+    mysqli \
+    zip \
+    gd \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath
+
+# Install Redis extension
+RUN pecl install redis \
+    && docker-php-ext-enable redis
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /app
+WORKDIR /var/www/html
 
 # Copy application files
 COPY . .
@@ -44,3 +67,15 @@ RUN sed -i 's/pm.max_spare_servers = 3/pm.max_spare_servers = 50/g' /usr/local/e
 EXPOSE 9000
 
 CMD ["php-fpm"]
+RUN composer install --no-interaction --optimize-autoloader
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
+
+# Expose port
+EXPOSE 8000
+
+# Start Laravel development server
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
