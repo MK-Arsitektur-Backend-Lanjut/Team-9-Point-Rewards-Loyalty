@@ -1,0 +1,405 @@
+{
+    "metrics": {
+        "generate_referral_duration": {
+            "avg": 8399.769344444447,
+            "min": 2935.5267,
+            "med": 10773.58465,
+            "max": 17018.8025,
+            "p(90)": 14470.587290000001,
+            "p(95)": 15747.373689999999,
+            "thresholds": {
+                "p(95)<500": true,
+                "p(99)<1000": true,
+                "avg<300": true
+            }
+        },
+        "checks": {
+            "passes": 183,
+            "fails": 0,
+            "value": 1
+        },
+        "list_tiers_total": {
+            "count": 10,
+            "rate": 0.10524557556888231
+        },
+        "http_req_receiving": {
+            "max": 12.1503,
+            "p(90)": 0.6892599999999999,
+            "p(95)": 1.6259599999999956,
+            "avg": 0.4542036144578312,
+            "min": 0,
+            "med": 0
+        },
+        "recalculate_tier_duration": {
+            "med": 8271.30335,
+            "max": 10329.5188,
+            "p(90)": 8849.77716,
+            "p(95)": 8925.597020000001,
+            "avg": 8137.65612,
+            "min": 3647.1648,
+            "thresholds": {
+                "avg<600": true,
+                "p(95)<1000": true,
+                "p(99)<2000": true
+            }
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 83,
+            "thresholds": {
+                "rate<0.10": false
+            },
+            "value": 0
+        },
+        "data_sent": {
+            "count": 17336,
+            "rate": 182.45372980621437
+        },
+        "http_req_connecting": {
+            "avg": 0.17543975903614456,
+            "min": 0,
+            "med": 0,
+            "max": 2.5431,
+            "p(90)": 0.7185399999999995,
+            "p(95)": 1.4564499999999982
+        },
+        "active_vus": {
+            "value": 1,
+            "min": 1,
+            "max": 10
+        },
+        "generate_referral_total": {
+            "count": 18,
+            "rate": 0.18944203602398815
+        },
+        "register_duration": {
+            "avg": 9924.697438888888,
+            "min": 3120.2491,
+            "med": 11791.01395,
+            "max": 17729.017,
+            "p(90)": 17050.48185,
+            "p(95)": 17156.86534
+        },
+        "list_tiers_duration": {
+            "p(95)": 5959.8163700000005,
+            "avg": 5629.84723,
+            "min": 2769.3913,
+            "med": 5945.98545,
+            "max": 5961.0968,
+            "p(90)": 5958.53594,
+            "thresholds": {
+                "p(99)<600": true,
+                "avg<200": true,
+                "p(95)<300": true
+            }
+        },
+        "generate_referral_errors": {
+            "fails": 18,
+            "passes": 0,
+            "thresholds": {
+                "rate<0.05": false
+            },
+            "value": 0
+        },
+        "data_received": {
+            "count": 41132,
+            "rate": 432.8961014299267
+        },
+        "apply_referral_errors": {
+            "passes": 0,
+            "fails": 17,
+            "thresholds": {
+                "rate<0.10": false
+            },
+            "value": 0
+        },
+        "recalculate_tier_total": {
+            "rate": 0.21049115113776462,
+            "count": 20
+        },
+        "vus_max": {
+            "value": 10,
+            "min": 10,
+            "max": 10
+        },
+        "register_errors": {
+            "fails": 18,
+            "passes": 0,
+            "value": 0
+        },
+        "apply_referral_duration": {
+            "p(95)": 18192.841739999996,
+            "avg": 11918.692205882353,
+            "min": 3677.1815,
+            "med": 17189.3347,
+            "max": 22042.9487,
+            "p(90)": 17221.234119999997,
+            "thresholds": {
+                "p(95)<800": true,
+                "p(99)<1500": true,
+                "avg<500": true
+            }
+        },
+        "http_reqs": {
+            "count": 83,
+            "rate": 0.8735382772217232
+        },
+        "apply_referral_total": {
+            "count": 17,
+            "rate": 0.17891747846709993
+        },
+        "recalculate_tier_errors": {
+            "passes": 0,
+            "fails": 20,
+            "thresholds": {
+                "rate<0.05": false
+            },
+            "value": 0
+        },
+        "race_condition_errors": {
+            "passes": 0,
+            "fails": 0,
+            "thresholds": {
+                "rate<0.50": false
+            },
+            "value": 0
+        },
+        "list_tiers_errors": {
+            "fails": 10,
+            "passes": 0,
+            "thresholds": {
+                "rate<0.02": false
+            },
+            "value": 0
+        },
+        "http_req_waiting": {
+            "avg": 9053.801137349397,
+            "min": 2769.3913,
+            "med": 7697.8902,
+            "max": 22042.389,
+            "p(90)": 17193.30014,
+            "p(95)": 17210.01694
+        },
+        "group_duration": {
+            "p(95)": 17210.01694,
+            "avg": 9056.869563855424,
+            "min": 2770.0133,
+            "med": 7699.0826,
+            "max": 22043.9687,
+            "p(90)": 17193.863400000002
+        },
+        "http_req_tls_handshaking": {
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0
+        },
+        "http_req_duration": {
+            "p(90)": 17193.30014,
+            "p(95)": 17210.01694,
+            "avg": 9054.334509638556,
+            "min": 2769.3913,
+            "med": 7697.8902,
+            "max": 22042.9487,
+            "thresholds": {
+                "p(99)<3000": true,
+                "p(95)<2000": true
+            }
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 9054.334509638556,
+            "min": 2769.3913,
+            "med": 7697.8902,
+            "max": 22042.9487,
+            "p(90)": 17193.30014,
+            "p(95)": 17210.01694
+        },
+        "http_req_blocked": {
+            "p(95)": 1.84976,
+            "avg": 0.24052530120481933,
+            "min": 0,
+            "med": 0,
+            "max": 2.5431,
+            "p(90)": 1.1753599999999993
+        },
+        "iteration_duration": {
+            "min": 64473.0057,
+            "med": 70329.97155,
+            "max": 76483.1042,
+            "p(90)": 75131.31176,
+            "p(95)": 75807.20797999999,
+            "avg": 70444.78229999999
+        },
+        "iterations": {
+            "count": 10,
+            "rate": 0.10524557556888231
+        },
+        "vus": {
+            "value": 1,
+            "min": 0,
+            "max": 10
+        },
+        "http_req_sending": {
+            "avg": 0.07916867469879518,
+            "min": 0,
+            "med": 0,
+            "max": 0.7482,
+            "p(90)": 0.49551999999999974,
+            "p(95)": 0.5927599999999998
+        }
+    },
+    "setup_data": {
+        "scenario": "normal",
+        "startTime": "2026-06-24T12:48:05.987Z",
+        "baseUrl": "http://localhost:8000"
+    },
+    "root_group": {
+        "groups": {
+            "Step 1: Generate Referral Code": {
+                "name": "Step 1: Generate Referral Code",
+                "path": "::Step 1: Generate Referral Code",
+                "id": "13b9ed0298651f4497d6d4a130039b37",
+                "groups": {},
+                "checks": {
+                        "generate: status 200": {
+                            "path": "::Step 1: Generate Referral Code::generate: status 200",
+                            "id": "37ebf655b1c50d14c9c628d9408810ee",
+                            "passes": 18,
+                            "fails": 0,
+                            "name": "generate: status 200"
+                        },
+                        "generate: has referral_code": {
+                            "passes": 18,
+                            "fails": 0,
+                            "name": "generate: has referral_code",
+                            "path": "::Step 1: Generate Referral Code::generate: has referral_code",
+                            "id": "9ab53114a47c2f2b51a14e67500560f7"
+                        }
+                    }
+            },
+            "Step 2: Register Referee": {
+                "path": "::Step 2: Register Referee",
+                "id": "b37360732415ca99ba5d0932a144050c",
+                "groups": {},
+                "checks": {
+                        "register: status 201": {
+                            "path": "::Step 2: Register Referee::register: status 201",
+                            "id": "4f1ce1b950456f329982a6d05305d4ea",
+                            "passes": 18,
+                            "fails": 0,
+                            "name": "register: status 201"
+                        },
+                        "register: returns user id": {
+                            "name": "register: returns user id",
+                            "path": "::Step 2: Register Referee::register: returns user id",
+                            "id": "eb12058dee41689b54071922f3cb1479",
+                            "passes": 18,
+                            "fails": 0
+                        }
+                    },
+                "name": "Step 2: Register Referee"
+            },
+            "Step 3: Apply Referral Code": {
+                "name": "Step 3: Apply Referral Code",
+                "path": "::Step 3: Apply Referral Code",
+                "id": "b135f64ef57b94f8fcd677414fb787a2",
+                "groups": {},
+                "checks": {
+                        "apply: status 200 or 422": {
+                            "name": "apply: status 200 or 422",
+                            "path": "::Step 3: Apply Referral Code::apply: status 200 or 422",
+                            "id": "1202534c7e25e2b2604e750fe2221df6",
+                            "passes": 17,
+                            "fails": 0
+                        },
+                        "apply: has body": {
+                            "name": "apply: has body",
+                            "path": "::Step 3: Apply Referral Code::apply: has body",
+                            "id": "7b4f361f9f780322e25d8660ef160870",
+                            "passes": 17,
+                            "fails": 0
+                        },
+                        "apply: 200 has referrer+referee": {
+                            "passes": 17,
+                            "fails": 0,
+                            "name": "apply: 200 has referrer+referee",
+                            "path": "::Step 3: Apply Referral Code::apply: 200 has referrer+referee",
+                            "id": "c2f992bdd97c8c865e41c41d0c1f1fdc"
+                        }
+                    }
+            },
+            "Step 4: Recalculate Tier (Referrer)": {
+                "name": "Step 4: Recalculate Tier (Referrer)",
+                "path": "::Step 4: Recalculate Tier (Referrer)",
+                "id": "6078438a17dee03e192dd8c8564a14d2",
+                "groups": {},
+                "checks": {
+                        "recalculate: status 200": {
+                            "name": "recalculate: status 200",
+                            "path": "::Step 4: Recalculate Tier (Referrer)::recalculate: status 200",
+                            "id": "22109cc8a2d8f4e6f76b25e063bbdc02",
+                            "passes": 10,
+                            "fails": 0
+                        },
+                        "recalculate: has tier field": {
+                            "id": "7fe6cbe237798f9431715f8bc7397eb1",
+                            "passes": 10,
+                            "fails": 0,
+                            "name": "recalculate: has tier field",
+                            "path": "::Step 4: Recalculate Tier (Referrer)::recalculate: has tier field"
+                        }
+                    }
+            },
+            "Step 5: Recalculate Tier (Referee)": {
+                "id": "6c0b6af0ea8186f7b98f637a26459c07",
+                "groups": {},
+                "checks": {
+                        "recalculate: status 200": {
+                            "name": "recalculate: status 200",
+                            "path": "::Step 5: Recalculate Tier (Referee)::recalculate: status 200",
+                            "id": "c5de5acfa0e419e64afe87e12eb464d1",
+                            "passes": 10,
+                            "fails": 0
+                        },
+                        "recalculate: has tier field": {
+                            "id": "cd34eaf4baff852423ed0e6d09113a03",
+                            "passes": 10,
+                            "fails": 0,
+                            "name": "recalculate: has tier field",
+                            "path": "::Step 5: Recalculate Tier (Referee)::recalculate: has tier field"
+                        }
+                    },
+                "name": "Step 5: Recalculate Tier (Referee)",
+                "path": "::Step 5: Recalculate Tier (Referee)"
+            },
+            "Step 6: List All Tiers": {
+                "name": "Step 6: List All Tiers",
+                "path": "::Step 6: List All Tiers",
+                "id": "80a0169160ad5c628aaeb8c84577ae26",
+                "groups": {},
+                "checks": {
+                        "list tiers: status 200": {
+                            "name": "list tiers: status 200",
+                            "path": "::Step 6: List All Tiers::list tiers: status 200",
+                            "id": "59e9d96caf1da8cd77762b89b82f2047",
+                            "passes": 10,
+                            "fails": 0
+                        },
+                        "list tiers: has data": {
+                            "name": "list tiers: has data",
+                            "path": "::Step 6: List All Tiers::list tiers: has data",
+                            "id": "cb9eea472414925e27b5516e377bb87e",
+                            "passes": 10,
+                            "fails": 0
+                        }
+                    }
+            }
+        },
+        "checks": {},
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+}
