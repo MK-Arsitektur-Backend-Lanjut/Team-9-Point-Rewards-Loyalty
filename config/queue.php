@@ -12,7 +12,17 @@ return [
             'driver' => 'database',
             'connection' => env('QUEUE_DB_CONNECTION', null),
             'table' => env('QUEUE_TABLE', 'jobs'),
+            'queue' => env('DB_QUEUE', 'default'),
             'retry_after' => 90,
+            'after_commit' => false,
+        ],
+
+        'redis' => [
+            'driver' => 'redis',
+            'connection' => 'default',
+            'queue' => env('REDIS_QUEUE', 'default'),
+            'retry_after' => 90,
+            'block_for' => null,
             'after_commit' => false,
         ],
     ],
