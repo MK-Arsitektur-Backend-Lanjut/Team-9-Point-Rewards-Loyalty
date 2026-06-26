@@ -1,4 +1,3 @@
-// shared/config.js
 export const BASE_URL = 'http://localhost:8002/api';
 export const TEST_USER = {
     email: 'testmodul3@example.com',

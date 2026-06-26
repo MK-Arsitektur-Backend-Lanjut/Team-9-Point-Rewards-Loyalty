@@ -12,8 +12,10 @@ class PointStatementService
     protected $pointLogRepository;
     protected $userRepository;
 
+
     private const CACHE_PREFIX = 'point_statement:';
-    private const CACHE_TTL = 60; // 1 menit
+    private const CACHE_TTL_BALANCE = 600;  
+    private const CACHE_TTL_STATEMENT = 300; 
 
     public function __construct(
         PointActivityLogRepositoryInterface $pointLogRepository,
@@ -30,10 +32,9 @@ class PointStatementService
         
         $history = $this->pointLogRepository->getUserStatement($userId, $filters);
         
-        // GUNAKAN FILE CACHE (BUKAN REDIS)
         $summaryCacheKey = sprintf('%suser:%d:summary:%s', self::CACHE_PREFIX, $userId, md5(json_encode($filters)));
         
-        $summary = Cache::remember($summaryCacheKey, self::CACHE_TTL, function () use ($userId) {
+        $summary = Cache::remember($summaryCacheKey, self::CACHE_TTL_STATEMENT, function () use ($userId) {
             $activePoints = $this->pointLogRepository->getActivePoints($userId);
 
             return [
@@ -62,7 +63,7 @@ class PointStatementService
 
         $cacheKey = self::CACHE_PREFIX . "user:{$userId}:balance";
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($userId) {
+        return Cache::remember($cacheKey, self::CACHE_TTL_BALANCE, function () use ($userId) {
             $activePoints = $this->pointLogRepository->getActivePoints($userId);
 
             return [
@@ -77,7 +78,6 @@ class PointStatementService
     public function clearCache(int $userId): void
     {
         Cache::forget(self::CACHE_PREFIX . "user:{$userId}:balance");
-        // File cache tidak support pattern delete, jadi clear manual
         Cache::forget(self::CACHE_PREFIX . "user:{$userId}:summary");
     }
 }

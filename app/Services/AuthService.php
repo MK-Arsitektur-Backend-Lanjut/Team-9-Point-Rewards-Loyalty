@@ -104,10 +104,8 @@ class AuthService
         ];
     }
 
-    // ✅ FIXED: Menggunakan JWTAuth::factory()
     private function formatResponse($user, $token): array
     {
-        // Ambil TTL dari JWT factory
         $ttl = JWTAuth::factory()->getTTL();
         
         return [

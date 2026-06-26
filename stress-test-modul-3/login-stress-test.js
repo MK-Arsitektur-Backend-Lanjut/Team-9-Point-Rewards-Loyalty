@@ -1,4 +1,3 @@
-// login-stress-test.js
 import { check, sleep } from 'k6';
 import { Rate, Trend } from 'k6/metrics';
 import { SCENARIOS } from './shared/config.js';

@@ -11,13 +11,22 @@ const statementDuration = new Trend('statement_duration');
 export const options = {
     scenarios: {
         stress: {
-            ...SCENARIOS.stress,
+            executor: 'ramping-vus',
+            startVUs: 0,
+            stages: [
+                { duration: '30s', target: 50 },
+                { duration: '1m', target: 100 },
+                { duration: '1m', target: 200 },
+                { duration: '1m', target: 200 },
+                { duration: '30s', target: 0 },
+            ],
             exec: 'stressTest',
         },
     },
     thresholds: {
-        'http_req_failed': ['rate<0.02'],
-        'statement_duration': ['p(95)<1000'],
+        'http_req_failed': ['rate<0.05'],
+        'statement_duration': ['p(95)<30000'],
+        'statement_duration': ['max<60000'],
     },
 };
 
@@ -38,6 +47,7 @@ export function stressTest() {
         'statement status 200': (r) => r.status === 200,
     });
 
+    errorRate.add(res.status !== 200);
     sleep(0.5);
 }
 

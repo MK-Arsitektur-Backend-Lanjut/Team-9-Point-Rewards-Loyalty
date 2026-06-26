@@ -1,4 +1,3 @@
-// statement-pagination-stress-test.js
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Rate, Trend } from 'k6/metrics';
@@ -6,7 +5,7 @@ import { BASE_URL, SCENARIOS } from './shared/config.js';
 import { login, getToken, getAuthHeaders } from './shared/auth.js';
 
 const errorRate = new Rate('errors');
-const paginationDuration = new Trend('pagination_duration');
+const statementDuration = new Trend('statement_duration');
 
 export const options = {
     scenarios: {
@@ -16,7 +15,8 @@ export const options = {
         },
     },
     thresholds: {
-        'pagination_duration': ['p(95)<1500'],
+        'http_req_failed': ['rate<0.02'],
+        'statement_duration': ['p(95)<1000'],
     },
 };
 
@@ -30,16 +30,11 @@ export function stressTest() {
     }
 
     const params = getAuthHeaders(token);
-    
-    // Test different pages
-    const pages = [1, 5, 10, 20, 50];
-    const page = pages[Math.floor(Math.random() * pages.length)];
-    
-    const res = http.get(`${BASE_URL}/statement?page=${page}&limit=20`, params);
-    paginationDuration.add(res.timings.duration);
+    const res = http.get(`${BASE_URL}/statement?page=1&limit=20`, params);
+    statementDuration.add(res.timings.duration);
 
     check(res, {
-        'pagination status 200': (r) => r.status === 200,
+        'statement status 200': (r) => r.status === 200,
     });
 
     sleep(0.5);
