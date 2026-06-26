@@ -1,0 +1,75 @@
+// =============================================
+// LOGIN SERVICE WITH REDIS CACHE
+// =============================================
+
+const redis = require('redis');
+const bcrypt = require('bcrypt');
+const { loginQuery } = require('./db-connection');
+
+// KONEKSI REDIS
+const redisClient = redis.createClient({
+    url: process.env.REDIS_URL || 'redis://localhost:6379',
+    socket: {
+        connectTimeout: 30000,
+        timeout: 30000,
+    }
+});
+
+redisClient.on('error', (err) => console.error('Redis Client Error', err));
+redisClient.connect();
+
+// CACHE TTL (DALAM DETIK)
+const CACHE_TTL = 300; // 5 menit
+
+async function login(email, password) {
+    try {
+        // 1. CEK CACHE
+        const cacheKey = `login:${email}`;
+        const cachedData = await redisClient.get(cacheKey);
+        
+        if (cachedData) {
+            const user = JSON.parse(cachedData);
+            // VERIFIKASI PASSWORD
+            const isValid = await bcrypt.compare(password, user.password);
+            if (isValid) {
+                return { ...user, fromCache: true };
+            }
+        }
+
+        // 2. QUERY DATABASE (DIOPTIMASI)
+        const user = await loginQuery(email);
+        
+        if (!user) {
+            return null;
+        }
+
+        // 3. VERIFIKASI PASSWORD
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) {
+            return null;
+        }
+
+        // 4. SIMPAN KE CACHE
+        await redisClient.set(cacheKey, JSON.stringify(user), {
+            EX: CACHE_TTL
+        });
+
+        return { ...user, fromCache: false };
+
+    } catch (error) {
+        console.error('Login error:', error);
+        throw error;
+    }
+}
+
+// FUNGSI UNTUK INVALIDASI CACHE
+async function invalidateCache(email) {
+    const cacheKey = `login:${email}`;
+    await redisClient.del(cacheKey);
+}
+
+module.exports = {
+    login,
+    invalidateCache,
+    redisClient
+};

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Http\Request\StatementFilterRequest;
-use App\Http\Request\UpdatePasswordRequest;
-use App\Http\Request\UpdateProfileRequest;
+use App\Http\Requests\StatementFilterRequest;
+use App\Http\Requests\UpdatePasswordRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\PointStatementService;
 use Illuminate\Support\Facades\Auth;

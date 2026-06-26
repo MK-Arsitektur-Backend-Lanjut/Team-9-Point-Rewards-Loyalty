@@ -303,8 +303,8 @@ Requests    : app/Http/Requests/RegisterRequest.php
 
 | Method | Endpoint | Auth | Deskripsi |
 |---|---|---|---|
-| POST | `/api/register` | ❌ | Registrasi member baru |
-| POST | `/api/login` | ❌ | Login & dapatkan token |
+| POST | `/api/register` | ✅ | Registrasi member baru |
+| POST | `/api/login` | ✅ | Login & dapatkan token |
 | POST | `/api/logout` | ✅ JWT | Logout & invalidate token |
 | GET | `/api/me` | ✅ JWT | Profil user yang login |
 | GET | `/api/points/balance` | ✅ JWT | Saldo poin & info expiry |

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 class MembershipTierRepository implements MembershipTierRepositoryInterface
 {
     protected string $cacheKey = 'membership_tiers.all';
+    protected string $cacheTierIndexKey = 'membership_tiers.index';
 
     public function getAllOrdered(): Collection
     {
@@ -18,11 +19,6 @@ class MembershipTierRepository implements MembershipTierRepositoryInterface
                 ->orderBy('min_points')
                 ->get();
         });
-    public function getAllOrdered(): Collection
-    {
-        return MembershipTier::query()
-            ->orderBy('min_points')
-            ->get();
     }
 
     public function create(array $data): MembershipTier

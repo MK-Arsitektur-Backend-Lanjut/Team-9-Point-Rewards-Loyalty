@@ -99,7 +99,7 @@ class UserSeeder extends Seeder
                 'points' => $userData['points'],
                 'points_balance' => $userData['points'],
                 'membership_tier_id' => $tier?->id,
-                'referral_code' => null,
+                'referral_code' => sprintf('RF%d%s', rand(1000, 9999), strtoupper(substr(bin2hex(random_bytes(3)), 0, 6))), // ✅ Generate referral code otomatis
                 'referred_by_user_id' => null,
             ]);
 

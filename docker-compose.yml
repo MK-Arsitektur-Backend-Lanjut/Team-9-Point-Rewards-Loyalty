@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
       args:
         - COMPOSER_PROCESS_TIMEOUT=2000
-    container_name: loyalty-app
+    container_name: loyalty-app-new
     restart: unless-stopped
     working_dir: /app
     volumes:
@@ -18,10 +18,11 @@ services:
     mem_limit: 2g
     environment:
       - PHP_MEMORY_LIMIT=512M
+    # PHP-FPM jalan di port 9000 (tidak expose ke host)
 
   db:
     image: mysql:8.0
-    container_name: loyalty-db
+    container_name: loyalty-db-new
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-loyalty_db}
@@ -30,7 +31,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "3308:3306"
     networks:
       - loyalty_network
     command: >
@@ -42,20 +43,6 @@ services:
       --query_cache_size=0
       --query_cache_type=0
 
-  webserver:
-    image: nginx:alpine
-    container_name: loyalty-nginx
-    restart: unless-stopped
-    ports:
-      - "8000:80"
-    volumes:
-      - ./:/app
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    networks:
-      - loyalty_network
-    depends_on:
-      - app
-
   redis:
     image: redis:7.0-alpine
     container_name: loyalty-redis
@@ -66,6 +53,20 @@ services:
       - redis_data:/data
     networks:
       - loyalty_network
+
+  webserver:
+    image: nginx:alpine
+    container_name: loyalty-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"   # pakai versi main (lebih konsisten)
+    volumes:
+      - ./:/app
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - loyalty_network
+    depends_on:
+      - app
 
 volumes:
   db_data:
