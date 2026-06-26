@@ -1,37 +1,65 @@
 FROM php:8.1-fpm
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libonig-dev libxml2-dev \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
-    && apt-get clean
+ARG COMPOSER_PROCESS_TIMEOUT=2000
 
-# Install Redis
-RUN pecl install redis && docker-php-ext-enable redis
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    default-libmysqlclient-dev \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    libpq-dev \
+    zip \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions
+RUN docker-php-ext-install \
+    pdo \
+    pdo_mysql \
+    mysqli \
+    zip \
+    gd \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath
+
+# Install Redis extension
+RUN pecl install redis \
+    && docker-php-ext-enable redis
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /app
 
-# Copy files
+# Copy project
 COPY . .
 
-# ✅ BUAT SEMUA DIREKTORI YANG DIPERLUKAN
+# Environment
+ENV COMPOSER_PROCESS_TIMEOUT=${COMPOSER_PROCESS_TIMEOUT}
+
+# ✅ Laravel folders (dari Modul-3)
 RUN mkdir -p storage/framework/cache \
-    && mkdir -p storage/framework/sessions \
-    && mkdir -p storage/framework/views \
-    && mkdir -p storage/logs \
-    && mkdir -p bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache
 
-# Install dependencies (tanpa --no-dev untuk development)
-RUN composer install --no-interaction --optimize-autoloader
+# ✅ Install dependencies (balanced)
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Final permissions
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+# ✅ Permission fix (gabungan terbaik)
+RUN chown -R www-data:www-data /app \
+    && chmod -R 775 storage bootstrap/cache \
+    && chmod -R 755 /app
+
+# ✅ Custom PHP-FPM config (dari main)
+COPY docker/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 EXPOSE 9000
 

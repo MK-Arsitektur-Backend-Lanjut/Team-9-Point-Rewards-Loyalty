@@ -1,0 +1,298 @@
+{
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "Step 1: Generate Referral Code": {
+                "name": "Step 1: Generate Referral Code",
+                "path": "::Step 1: Generate Referral Code",
+                "id": "13b9ed0298651f4497d6d4a130039b37",
+                "groups": {},
+                "checks": {
+                        "generate: status 200": {
+                            "name": "generate: status 200",
+                            "path": "::Step 1: Generate Referral Code::generate: status 200",
+                            "id": "37ebf655b1c50d14c9c628d9408810ee",
+                            "passes": 200,
+                            "fails": 300
+                        },
+                        "generate: has referral_code": {
+                            "name": "generate: has referral_code",
+                            "path": "::Step 1: Generate Referral Code::generate: has referral_code",
+                            "id": "9ab53114a47c2f2b51a14e67500560f7",
+                            "passes": 200,
+                            "fails": 300
+                        }
+                    }
+            },
+            "Step 2: Register Referee": {
+                "name": "Step 2: Register Referee",
+                "path": "::Step 2: Register Referee",
+                "id": "b37360732415ca99ba5d0932a144050c",
+                "groups": {},
+                "checks": {
+                        "register: status 201": {
+                            "fails": 113,
+                            "name": "register: status 201",
+                            "path": "::Step 2: Register Referee::register: status 201",
+                            "id": "4f1ce1b950456f329982a6d05305d4ea",
+                            "passes": 0
+                        },
+                        "register: returns user id": {
+                            "fails": 113,
+                            "name": "register: returns user id",
+                            "path": "::Step 2: Register Referee::register: returns user id",
+                            "id": "eb12058dee41689b54071922f3cb1479",
+                            "passes": 0
+                        }
+                    }
+            }
+        },
+        "checks": {}
+    },
+    "metrics": {
+        "http_req_tls_handshaking": {
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0
+        },
+        "generate_referral_total": {
+            "count": 500,
+            "rate": 4.500191488548068
+        },
+        "http_req_waiting": {
+            "p(90)": 60116.03802,
+            "p(95)": 60323.58386,
+            "avg": 52751.82631256116,
+            "min": 22260.3811,
+            "med": 59999.0146,
+            "max": 60411.4915
+        },
+        "recalculate_tier_errors": {
+            "passes": 0,
+            "fails": 0,
+            "thresholds": {
+                "rate<0.05": false
+            },
+            "value": 0
+        },
+        "generate_referral_errors": {
+            "passes": 300,
+            "fails": 200,
+            "thresholds": {
+                "rate<0.05": true
+            },
+            "value": 0.6
+        },
+        "http_reqs": {
+            "count": 613,
+            "rate": 5.517234764959931
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 37679.855022,
+            "min": 22260.9287,
+            "med": 27780.6043,
+            "max": 56046.604,
+            "p(90)": 55034.99666,
+            "p(95)": 55591.61152
+        },
+        "vus_max": {
+            "max": 500,
+            "value": 500,
+            "min": 500
+        },
+        "race_condition_errors": {
+            "passes": 0,
+            "fails": 0,
+            "thresholds": {
+                "rate<0.50": false
+            },
+            "value": 0
+        },
+        "http_req_receiving": {
+            "avg": 0.06220799347471451,
+            "min": 0,
+            "med": 0,
+            "max": 2.2687,
+            "p(90)": 0,
+            "p(95)": 0.5624
+        },
+        "data_sent": {
+            "count": 210592,
+            "rate": 1895.4086519126292
+        },
+        "http_req_duration": {
+            "min": 22260.9287,
+            "med": 59999.253,
+            "max": 60411.4915,
+            "p(90)": 60116.03802,
+            "p(95)": 60323.58386,
+            "avg": 52752.156404730835,
+            "thresholds": {
+                "p(95)<2000": true,
+                "p(99)<3000": true
+            }
+        },
+        "generate_referral_duration": {
+            "avg": 51075.83902820001,
+            "min": 22260.9287,
+            "med": 59997.67784999999,
+            "max": 60315.0826,
+            "p(90)": 60005.06779,
+            "p(95)": 60016.393785,
+            "thresholds": {
+                "p(99)<1000": true,
+                "avg<300": true,
+                "p(95)<500": true
+            }
+        },
+        "list_tiers_errors": {
+            "passes": 0,
+            "fails": 0,
+            "thresholds": {
+                "rate<0.02": false
+            },
+            "value": 0
+        },
+        "http_req_sending": {
+            "avg": 0.26788417618270816,
+            "min": 0,
+            "med": 0,
+            "max": 4.6427,
+            "p(90)": 0.6589200000000001,
+            "p(95)": 1.0268399999999998
+        },
+        "register_duration": {
+            "p(95)": 60396.1399,
+            "avg": 60169.48992920354,
+            "min": 60000.4104,
+            "med": 60116.2781,
+            "max": 60411.4915,
+            "p(90)": 60362.411120000004
+        },
+        "checks": {
+            "passes": 400,
+            "fails": 826,
+            "value": 0.3262642740619902
+        },
+        "http_req_blocked": {
+            "min": 0,
+            "med": 1.4728,
+            "max": 70.0451,
+            "p(90)": 4.077820000000003,
+            "p(95)": 8.015999999999996,
+            "avg": 2.2731119086460043
+        },
+        "iterations": {
+            "count": 413,
+            "rate": 3.717158169540704
+        },
+        "http_req_connecting": {
+            "avg": 2.0297877650897242,
+            "min": 0,
+            "med": 1.2317,
+            "max": 68.9313,
+            "p(90)": 3.702840000000002,
+            "p(95)": 7.348919999999992
+        },
+        "apply_referral_errors": {
+            "passes": 0,
+            "fails": 0,
+            "thresholds": {
+                "rate<0.10": false
+            },
+            "value": 0
+        },
+        "iteration_duration": {
+            "med": 61019.0429,
+            "max": 97366.2591,
+            "p(90)": 87748.36984,
+            "p(95)": 89015.4945,
+            "avg": 68220.33796852294,
+            "min": 61002.2131
+        },
+        "group_duration": {
+            "p(95)": 60364.246699999996,
+            "avg": 52774.15671517126,
+            "min": 22263.6548,
+            "med": 60003.8879,
+            "max": 60474.6058,
+            "p(90)": 60303.856759999995
+        },
+        "active_vus": {
+            "value": 104,
+            "min": 1,
+            "max": 500
+        },
+        "data_received": {
+            "count": 55200,
+            "rate": 496.8211403357067
+        },
+        "vus": {
+            "value": 0,
+            "min": 0,
+            "max": 500
+        },
+        "apply_referral_duration": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "thresholds": {
+                "p(95)<800": false,
+                "p(99)<1500": false,
+                "avg<500": false
+            }
+        },
+        "recalculate_tier_duration": {
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "thresholds": {
+                "p(95)<1000": false,
+                "p(99)<2000": false,
+                "avg<600": false
+            }
+        },
+        "register_errors": {
+            "passes": 113,
+            "fails": 0,
+            "value": 1
+        },
+        "http_req_failed": {
+            "passes": 413,
+            "fails": 200,
+            "thresholds": {
+                "rate<0.10": true
+            },
+            "value": 0.6737357259380098
+        },
+        "list_tiers_duration": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "thresholds": {
+                "p(95)<300": false,
+                "p(99)<600": false,
+                "avg<200": false
+            }
+        }
+    },
+    "setup_data": {
+        "scenario": "normal",
+        "startTime": "2026-06-24T12:53:25.871Z",
+        "baseUrl": "http://localhost:8000"
+    }
+}
