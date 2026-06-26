@@ -12,6 +12,9 @@ class PointStatementService
     protected $pointLogRepository;
     protected $userRepository;
 
+    private const CACHE_PREFIX = 'point_statement:';
+    private const CACHE_TTL = 60; // 1 menit
+
     public function __construct(
         PointActivityLogRepositoryInterface $pointLogRepository,
         UserRepositoryInterface $userRepository
@@ -20,21 +23,17 @@ class PointStatementService
         $this->userRepository = $userRepository;
     }
 
-    /**
-     * Mendapatkan E-Statement lengkap dengan summary
-     */
     public function getStatement(int $userId, array $filters = [])
     {
         $user = $this->userRepository->findById($userId);
-
         $this->pointLogRepository->markExpiredPoints($userId);
         
-        // Get paginated statement history
         $history = $this->pointLogRepository->getUserStatement($userId, $filters);
         
-        // Cache summary untuk mengurangi beban query Redis/DB
-        $summaryCacheKey = sprintf('point_statement:user:%d:summary:%s', $userId, md5(json_encode($filters)));
-        $summary = Cache::store('redis')->remember($summaryCacheKey, now()->addMinutes(2), function () use ($userId) {
+        // GUNAKAN FILE CACHE (BUKAN REDIS)
+        $summaryCacheKey = sprintf('%suser:%d:summary:%s', self::CACHE_PREFIX, $userId, md5(json_encode($filters)));
+        
+        $summary = Cache::remember($summaryCacheKey, self::CACHE_TTL, function () use ($userId) {
             $activePoints = $this->pointLogRepository->getActivePoints($userId);
 
             return [
@@ -56,17 +55,14 @@ class PointStatementService
         ];
     }
 
-    /**
-     * Mendapatkan informasi saldo poin
-     */
     public function getPointsBalance(int $userId)
     {
         $user = $this->userRepository->findById($userId);
         $this->pointLogRepository->markExpiredPoints($userId);
 
-        $cacheKey = "point_statement:user:{$userId}:balance";
+        $cacheKey = self::CACHE_PREFIX . "user:{$userId}:balance";
 
-        return Cache::store('redis')->remember($cacheKey, now()->addMinutes(2), function () use ($userId) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($userId) {
             $activePoints = $this->pointLogRepository->getActivePoints($userId);
 
             return [
@@ -76,5 +72,12 @@ class PointStatementService
                 'note' => 'Poin berlaku 1 tahun dari tanggal perolehan'
             ];
         });
+    }
+
+    public function clearCache(int $userId): void
+    {
+        Cache::forget(self::CACHE_PREFIX . "user:{$userId}:balance");
+        // File cache tidak support pattern delete, jadi clear manual
+        Cache::forget(self::CACHE_PREFIX . "user:{$userId}:summary");
     }
 }

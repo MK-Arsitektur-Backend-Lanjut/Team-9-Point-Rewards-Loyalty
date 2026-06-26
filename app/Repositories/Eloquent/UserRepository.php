@@ -7,7 +7,7 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 
 class UserRepository implements UserRepositoryInterface
 {
-    protected $model;
+    protected User $model;
 
     public function __construct(User $model)
     {
@@ -26,17 +26,17 @@ class UserRepository implements UserRepositoryInterface
 
     public function findById(int $id)
     {
-        return $this->model->findOrFail($id);
+        return $this->model->find($id);
     }
 
     public function findOrFail(int $id): User
     {
-        return User::query()->findOrFail($id);
+        return $this->model->findOrFail($id);
     }
 
     public function findOrFailWithLock(int $id): User
     {
-        return User::query()
+        return $this->model
             ->with('membershipTier')
             ->lockForUpdate()
             ->findOrFail($id);
@@ -44,7 +44,9 @@ class UserRepository implements UserRepositoryInterface
 
     public function findByReferralCode(string $referralCode): ?User
     {
-        return User::query()->where('referral_code', $referralCode)->first();
+        return $this->model
+            ->where('referral_code', $referralCode)
+            ->first();
     }
 
     public function update(User $user, array $data): User

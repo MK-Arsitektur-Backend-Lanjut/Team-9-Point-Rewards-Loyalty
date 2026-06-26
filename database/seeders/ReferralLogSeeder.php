@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ReferralLogSeeder extends Seeder
 {
@@ -27,7 +28,11 @@ class ReferralLogSeeder extends Seeder
         $currentUsers = User::query()->count();
 
         if ($currentUsers < $minimumUsers) {
-            User::factory($minimumUsers - $currentUsers)->create();
+            User::factory($minimumUsers - $currentUsers)->create([
+                'referral_code' => function () {
+                    return 'RF' . strtoupper(Str::random(8));
+                }
+            ]);
             $currentUsers = $minimumUsers;
         }
 

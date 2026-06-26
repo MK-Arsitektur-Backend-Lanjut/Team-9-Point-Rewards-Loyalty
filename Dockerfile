@@ -1,75 +1,38 @@
 FROM php:8.1-fpm
 
-# Accept build argument
-ARG COMPOSER_PROCESS_TIMEOUT=2000
-
-# Install system dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    default-libmysqlclient-dev \
-    libmcrypt-dev \
-    zip \
-    unzip
+    git curl zip unzip libpng-dev libonig-dev libxml2-dev \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
+    && apt-get clean
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql
-
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    libpq-dev \
-    zip \
-    unzip \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions
-RUN docker-php-ext-install \
-    pdo \
-    pdo_mysql \
-    mysqli \
-    zip \
-    gd \
-    mbstring \
-    exif \
-    pcntl \
-    bcmath
-
-# Install Redis extension
-RUN pecl install redis \
-    && docker-php-ext-enable redis
+# Install Redis
+RUN pecl install redis && docker-php-ext-enable redis
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /app
-WORKDIR /var/www/html
 
-# Copy application files
+# Copy files
 COPY . .
 
-# Install Composer dependencies
-ENV COMPOSER_PROCESS_TIMEOUT=${COMPOSER_PROCESS_TIMEOUT}
-RUN composer install --no-interaction --no-dev --prefer-dist --no-scripts
+# ✅ BUAT SEMUA DIREKTORI YANG DIPERLUKAN
+RUN mkdir -p storage/framework/cache \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
+    && mkdir -p storage/logs \
+    && mkdir -p bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
-# Set permissions
-RUN chown -R www-data:www-data /app
+# Install dependencies (tanpa --no-dev untuk development)
+RUN composer install --no-interaction --optimize-autoloader
 
-# Expose port
+# Final permissions
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
 EXPOSE 9000
 
 CMD ["php-fpm"]
-RUN composer install --no-interaction --optimize-autoloader
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
-
-# Expose port
-EXPOSE 8000
-
-# Start Laravel development server
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

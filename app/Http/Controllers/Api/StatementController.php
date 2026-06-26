@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Request\StatementFilterRequest;
+use App\Http\Requests\StatementFilterRequest;
 use App\Services\PointStatementService;
 
 class StatementController extends Controller

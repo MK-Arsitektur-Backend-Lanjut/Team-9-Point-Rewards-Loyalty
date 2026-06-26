@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\Contracts\UserRepositoryInterface;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -11,26 +12,58 @@ class AuthService
 {
     protected $userRepository;
 
+    private const CACHE_PREFIX = 'auth:user:';
+    private const CACHE_TTL = 300;
+
     public function __construct(UserRepositoryInterface $userRepository)
     {
         $this->userRepository = $userRepository;
     }
 
-    /**
-     * Register user baru
-     */
+    public function login(array $credentials)
+    {
+        $email = $credentials['email'];
+        $cacheKey = self::CACHE_PREFIX . md5($email);
+        
+        $cachedUser = Cache::get($cacheKey);
+        
+        if ($cachedUser) {
+            if (Hash::check($credentials['password'], $cachedUser['password'])) {
+                $user = $this->userRepository->findById($cachedUser['id']);
+                if ($user) {
+                    $token = JWTAuth::fromUser($user);
+                    return $this->formatResponse($user, $token);
+                }
+            }
+        }
+
+        $user = $this->userRepository->findByEmail($email);
+        
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['Email atau password salah.']
+            ]);
+        }
+
+        Cache::put($cacheKey, [
+            'id' => $user->id,
+            'email' => $user->email,
+            'password' => $user->password,
+            'name' => $user->name,
+        ], self::CACHE_TTL);
+
+        $token = JWTAuth::fromUser($user);
+
+        return $this->formatResponse($user, $token);
+    }
+
     public function register(array $data)
     {
-        // Hash password
         $data['password'] = Hash::make($data['password']);
-        
-        // Set default points_balance = 0 (dari Modul 1 & 2)
         $data['points_balance'] = 0;
+        $data['referral_code'] = 'REF' . strtoupper(uniqid());
         
-        // Buat user
         $user = $this->userRepository->create($data);
-        
-        // Generate JWT token
         $token = JWTAuth::fromUser($user);
         
         return [
@@ -38,60 +71,56 @@ class AuthService
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'points_balance' => $user->points_balance,
-                'points_balance' => $user->active_points,
+                'points_balance' => $user->points_balance ?? 0,
             ],
             'token' => $token
         ];
     }
 
-    /**
-     * Login user
-     */
-    public function login(array $credentials)
+    public function logout()
     {
-        if (!$token = JWTAuth::attempt($credentials)) {
-            throw ValidationException::withMessages([
-                'email' => ['Email atau password salah.']
-            ]);
+        $user = auth()->user();
+        if ($user) {
+            $cacheKey = self::CACHE_PREFIX . md5($user->email);
+            Cache::forget($cacheKey);
         }
         
+        JWTAuth::invalidate(JWTAuth::getToken());
+        return true;
+    }
+
+    public function getMe()
+    {
         $user = auth()->user();
+        $user->load(['membershipTier', 'pointBalance']);
+        
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'points_balance' => $user->points_balance ?? 0,
+            'points' => $user->points ?? 0,
+            'membership_tier' => $user->membershipTier?->name ?? 'Bronze',
+        ];
+    }
+
+    // ✅ FIXED: Menggunakan JWTAuth::factory()
+    private function formatResponse($user, $token): array
+    {
+        // Ambil TTL dari JWT factory
+        $ttl = JWTAuth::factory()->getTTL();
         
         return [
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'points_balance' => $user->points_balance,
-                'points_balance' => $user->active_points,
+                'points_balance' => $user->points_balance ?? 0,
+                'points' => $user->points ?? 0,
             ],
-            'token' => $token
-        ];
-    }
-
-    /**
-     * Logout user
-     */
-    public function logout()
-    {
-        JWTAuth::invalidate(JWTAuth::getToken());
-        return true;
-    }
-
-    /**
-     * Get authenticated user
-     */
-    public function getMe()
-    {
-        $user = auth()->user();
-        
-        return [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'points_balance' => $user->points_balance,
-            'points_balance' => $user->active_points,
+            'token' => $token,
+            'token_type' => 'Bearer',
+            'expires_in' => $ttl * 60,  // TTL dalam detik
         ];
     }
 }

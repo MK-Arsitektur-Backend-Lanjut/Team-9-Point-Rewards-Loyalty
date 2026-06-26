@@ -1,0 +1,30 @@
+-- =============================================
+-- DATABASE OPTIMIZATION FOR LOGIN ENDPOINT
+-- =============================================
+
+-- 1. CEK STRUKTUR TABEL YANG ADA
+DESCRIBE users;
+SHOW INDEX FROM users;
+
+-- 2. TAMBAHKAN INDEX PADA EMAIL (WAJIB)
+CREATE INDEX idx_users_email ON users(email);
+
+-- 3. TAMBAHKAN INDEX COMPOSITE UNTUK QUERY LOGIN
+CREATE INDEX idx_users_email_password ON users(email, password);
+
+-- 4. TAMBAHKAN INDEX UNTUK STATUS/VERIFIKASI
+CREATE INDEX idx_users_email_verified ON users(email, email_verified_at);
+
+-- 5. OPTIMASI TABEL
+OPTIMIZE TABLE users;
+
+-- 6. CEK QUERY PERFORMANCE
+EXPLAIN SELECT * FROM users 
+WHERE email = 'testuser123@example.com' 
+AND password = 'hashed_password';
+
+-- 7. CEK STATUS DATABASE
+SHOW STATUS LIKE 'Threads_connected';
+SHOW STATUS LIKE 'Max_used_connections';
+SHOW VARIABLES LIKE 'max_connections';
+SHOW VARIABLES LIKE 'innodb_buffer_pool_size';
